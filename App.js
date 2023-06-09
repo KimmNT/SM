@@ -1,113 +1,26 @@
-import React, {useState} from 'react';
-import {
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import DeviceModal from './DeviceConnectionModal';
-// import PulseIndicator from './PulseIndicator';
-import useBLE from './useBLE';
-import {Device} from 'react-native-ble-plx';
+import React, {useEffect, useState} from 'react';
+import Splash from './src/screens/Splash';
+import Home from './src/screens/Home';
+import {SafeAreaProvider} from 'react-native-safe-area-context';
+import Router from './src/router/Routing';
 
 const App = () => {
-  const {
-    requestPermissions,
-    scanForDevices,
-    scanForPeripherals,
-    allDevices,
-    connectToDevice,
-    connectedDevice,
-    heartRate,
-    disconnectFromDevice,
-  } = useBLE();
-  const [isModalVisible, setIsModalVisible] = useState(false);
-
-  const hideModal = () => {
-    setIsModalVisible(false);
-  };
-  const openModal = async () => {
-    requestPermissions(isGranted => {
-      if (isGranted) {
-        scanForDevices();
-        setIsModalVisible(true);
-      }
-    });
-  };
-
+  const [isSplash, setIsSplash] = useState(true);
+  useEffect(() => {
+    setTimeout(() => {
+      setIsSplash(false);
+    }, 4000);
+  });
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.heartRateTitleWrapper}>
-        {connectedDevice ? (
-          <View>
-            <Text style={{color: '#000'}}>the data is</Text>
-            <Text style={{color: '#000'}}>{heartRate}</Text>
-          </View>
-        ) : (
-          <Text style={styles.heartRateTitleText}>
-            Please connect to an IOT device
-          </Text>
-        )}
+    // <NavigationContainer>
+    //   <Stack.Navigator headerMode="none" initialRouteName="Splash">
+    //     <Stack.Screen name="Splash" component={Splash} />
+    //     <Stack.Screen name="Home" component={Home} />
+    //   </Stack.Navigator>
+    // </NavigationContainer>
 
-        {/* {allDevices.map((device, index) => (
-          <View key={index}>
-            <Text style={styles.device_name}>{device.serviceUUIDs}</Text>
-            <Text style={styles.device_name}>{device.id}</Text>
-          </View>
-        ))} */}
-      </View>
-      <TouchableOpacity onPress={openModal} style={styles.ctaButton}>
-        <Text style={styles.ctaButtonText}>{'Connect'}</Text>
-      </TouchableOpacity>
-      <DeviceModal
-        closeModal={hideModal}
-        visible={isModalVisible}
-        connectToPeripheral={connectToDevice}
-        devices={allDevices}
-      />
-    </SafeAreaView>
+    <SafeAreaProvider>{isSplash ? <Splash /> : <Home />}</SafeAreaProvider>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#f2f2f2',
-  },
-  heartRateTitleWrapper: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  heartRateTitleText: {
-    fontSize: 30,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginHorizontal: 20,
-    color: 'black',
-  },
-  heartRateText: {
-    fontSize: 25,
-    marginTop: 15,
-  },
-  ctaButton: {
-    backgroundColor: 'purple',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: 50,
-    marginHorizontal: 20,
-    marginBottom: 5,
-    borderRadius: 8,
-  },
-  ctaButtonText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: 'white',
-  },
-  device_name: {
-    color: '#000',
-  },
-});
 
 export default App;
