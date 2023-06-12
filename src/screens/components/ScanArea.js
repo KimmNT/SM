@@ -1,10 +1,13 @@
 import {StyleSheet, Text, View} from 'react-native';
 import React from 'react';
 
-export default function IOTIndex() {
+export default function ScanArea() {
   return (
     <View>
-      <Text>iotIndex</Text>
+      <View></View>
+      <View></View>
+      <View></View>
+      <View></View>
     </View>
   );
 }

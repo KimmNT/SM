@@ -1,15 +1,15 @@
 import React, {useEffect, useState} from 'react';
 import Splash from './src/screens/Splash';
-import Home from './src/screens/Home';
+import HomeScreen from './src/screens/HomeScreen';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
-import Router from './src/router/Routing';
+import Routing from './src/router/Routing';
 
 const App = () => {
   const [isSplash, setIsSplash] = useState(true);
   useEffect(() => {
     setTimeout(() => {
       setIsSplash(false);
-    }, 4000);
+    }, 5000);
   });
   return (
     // <NavigationContainer>
@@ -19,7 +19,7 @@ const App = () => {
     //   </Stack.Navigator>
     // </NavigationContainer>
 
-    <SafeAreaProvider>{isSplash ? <Splash /> : <Home />}</SafeAreaProvider>
+    <SafeAreaProvider>{isSplash ? <Splash /> : <Routing />}</SafeAreaProvider>
   );
 };
 

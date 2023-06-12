@@ -55,7 +55,7 @@ const SplashScreen = ({navigation}) => {
       duration: 1000,
       useNativeDriver: true,
     }).start();
-    //BRAND
+    //BRAND DOWN
     Animated.timing(textDownMove, {
       toValue: -75,
       duration: 1000,
