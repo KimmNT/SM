@@ -3,13 +3,54 @@ import React from 'react';
 
 export default function ScanArea() {
   return (
-    <View>
-      <View></View>
-      <View></View>
-      <View></View>
-      <View></View>
+    <View style={styles.area__container}>
+      <View style={[styles.corner, styles.top__left]}></View>
+      <View style={[styles.corner, styles.top__right]}></View>
+      <View style={[styles.corner, styles.bottom__right]}></View>
+      <View style={[styles.corner, styles.bottom__left]}></View>
     </View>
   );
 }
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  area__container: {
+    position: 'relative',
+    // backgroundColor: 'teal',
+    width: 300,
+    height: 300,
+  },
+  corner: {
+    position: 'absolute',
+    // backgroundColor: 'maroon',
+    width: 50,
+    height: 50,
+  },
+  top__left: {
+    top: 0,
+    left: 0,
+    borderTopWidth: 5,
+    borderLeftWidth: 5,
+    borderColor: '#FFF',
+  },
+  top__right: {
+    top: 0,
+    right: 0,
+    borderTopWidth: 5,
+    borderRightWidth: 5,
+    borderColor: '#FFF',
+  },
+  bottom__right: {
+    bottom: 0,
+    right: 0,
+    borderBottomWidth: 5,
+    borderRightWidth: 5,
+    borderColor: '#FFF',
+  },
+  bottom__left: {
+    bottom: 0,
+    left: 0,
+    borderBottomWidth: 5,
+    borderLeftWidth: 5,
+    borderColor: '#FFF',
+  },
+});

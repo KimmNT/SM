@@ -3,6 +3,14 @@ import Splash from './src/screens/Splash';
 import HomeScreen from './src/screens/HomeScreen';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import Routing from './src/router/Routing';
+import {LogBox} from 'react-native';
+import Success from './src/screens/components/Success';
+
+//remove warning ViewPropTypes will be removed from React Native,
+LogBox.ignoreLogs([
+  'ViewPropTypes will be removed',
+  'ColorPropType will be removed',
+]);
 
 const App = () => {
   const [isSplash, setIsSplash] = useState(true);

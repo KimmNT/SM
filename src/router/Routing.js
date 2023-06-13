@@ -6,6 +6,7 @@ import HomeScreen from '../screens/HomeScreen';
 import Scan from '../screens/components/Scan';
 import Submit from '../screens/components/Submit';
 import Success from '../screens/components/Success';
+import ScanArea from '../screens/components/ScanArea';
 
 const Stack = createNativeStackNavigator();
 
