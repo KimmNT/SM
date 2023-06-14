@@ -7,21 +7,33 @@ import BackArrow from './BackArrow';
 
 export default function Scan({navigation}) {
   const [qrcode, setQRCode] = useState('');
+  const record_data_idx = 0;
 
   const handleScanning = () => {
     if (qrcode === '') {
       Alert.alert('Missing some thing!', "You haven't scan the QR code!");
     } else {
-      navigation.navigate('Submit');
+      const get_record_info_cmd =
+        'rec get -d ' + qrcode + ' ' + record_data_idx;
+      console.log(get_record_info_cmd);
+      const dataResponse =
+        '$PNCSG,RCDD-G0001-15|4509|1234.5677,1234.9876|3|50,255|5,7,10|255,255,255*cs';
+      navigation.navigate('Stats', {dataResponse});
     }
   };
+  const handleScanningFail = () => {
+    setQRCode('');
+  };
+
+  const deviceArray = ['G0002', 'G0004', 'G0003', 'G0007', 'G0001'];
+  const sameValue = deviceArray.includes(qrcode);
 
   return (
     <QRCodeScanner
       onRead={({data}) => setQRCode(data)}
       // flashMode={RNCamera.Constants.FlashMode.torch}
-      // reactivate={true}
-      // reactivateTimeout={500}
+      reactivate={true}
+      reactivateTimeout={2000}
       fadeIn={true}
       showMarker={true}
       customMarker={
@@ -41,13 +53,26 @@ export default function Scan({navigation}) {
           <Text style={styles.desc__text}>Move your camera to the QR code</Text>
           <View>
             <Text style={[styles.desc__text, styles.highlight]}>
-              Device name:
+              Device name: {qrcode}
             </Text>
-            <Text style={styles.qrcode}>{qrcode}</Text>
+            <View style={styles.connect__status}>
+              {sameValue ? (
+                <View style={styles.succes__container}>
+                  <Text style={styles.success}>Ready to connect</Text>
+                  <TouchableOpacity
+                    style={styles.desc__btn_success}
+                    onPress={handleScanning}>
+                    <Text style={styles.desc__btn_text}>connect</Text>
+                  </TouchableOpacity>
+                </View>
+              ) : (
+                <View style={styles.succes__container}>
+                  <Text style={styles.fail}>Device is out of reach</Text>
+                  <Text style={styles.fail__wait}>Wait 5s to scan again</Text>
+                </View>
+              )}
+            </View>
           </View>
-          <TouchableOpacity style={styles.desc__btn} onPress={handleScanning}>
-            <Text style={styles.desc__btn_text}>connect</Text>
-          </TouchableOpacity>
         </View>
       }
     />
@@ -61,7 +86,7 @@ const styles = StyleSheet.create({
   desc: {
     height: '100%',
     width: '70%',
-    gap: 20,
+    gap: 30,
     alignItems: 'center',
     // backgroundColor: 'red',
   },
@@ -72,18 +97,32 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 600,
   },
-  qrcode: {
-    color: '#27292B',
-    textAlign: 'center',
-    fontSize: 20,
+  connect__status: {
+    alignItems: 'center',
+    marginTop: 5,
   },
-  desc__btn: {
-    backgroundColor: '#E79C25',
-    width: '70%',
+  succes__container: {
+    width: '100%',
+    alignItems: 'center',
+    gap: 20,
+  },
+  success: {
+    color: '#388E3C',
+  },
+  fail: {
+    color: '#E53935',
+  },
+  fail__wait: {
+    color: '#27292B',
+    fontWeight: 600,
+  },
+  desc__btn_success: {
+    backgroundColor: '#388E3C',
     paddingHorizontal: 10,
     paddingVertical: 15,
     alignItems: 'center',
     borderRadius: 5,
+    width: '100%',
   },
   desc__btn_text: {
     color: '#FFF',

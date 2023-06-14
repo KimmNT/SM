@@ -92,13 +92,13 @@ const styles = StyleSheet.create({
   welcome__time: {
     position: 'absolute',
     top: 30,
-    right: 0,
+    left: 0,
     backgroundColor: '#E79C25',
     padding: 15,
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
-    opacity: 0.9,
+    opacity: 0.95,
   },
   time: {
     fontSize: 15,

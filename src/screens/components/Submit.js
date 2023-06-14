@@ -67,7 +67,7 @@ export default function Submit({navigation}) {
             <TouchableOpacity onPress={() => navigation.goBack()}>
               <BackArrow />
             </TouchableOpacity>
-            <Text style={styles.header__text}>Submit</Text>
+            <Text style={styles.header__text}>Submit your data</Text>
           </View>
 
           {/* CONTENT */}
@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   header__text: {
-    fontSize: 30,
+    fontSize: 25,
     fontWeight: 900,
     color: '#FFF',
   },

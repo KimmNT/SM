@@ -5,6 +5,8 @@ import {SafeAreaProvider} from 'react-native-safe-area-context';
 import Routing from './src/router/Routing';
 import {LogBox} from 'react-native';
 import Success from './src/screens/components/Success';
+import Stats from './src/screens/IOT/Stats';
+import Scan from './src/screens/components/Scan';
 
 //remove warning ViewPropTypes will be removed from React Native,
 LogBox.ignoreLogs([
