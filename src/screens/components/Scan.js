@@ -21,9 +21,6 @@ export default function Scan({navigation}) {
       navigation.navigate('Stats', {dataResponse});
     }
   };
-  const handleScanningFail = () => {
-    setQRCode('');
-  };
 
   const deviceArray = ['G0002', 'G0004', 'G0003', 'G0007', 'G0001'];
   const sameValue = deviceArray.includes(qrcode);
