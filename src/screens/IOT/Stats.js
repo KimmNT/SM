@@ -13,11 +13,11 @@ import React, {useEffect, useRef} from 'react';
 import Svg, {G, Circle} from 'react-native-svg';
 
 import BackArrow from '../components/BackArrow';
+import MapView, {Heatmap} from 'react-native-maps';
 
 //IMAGE
 import BackGround from '../../../assets/images/background.png';
 import Jump1 from '../../../assets/images/jump.png';
-import Field from '../../../assets/images/stat_field.png';
 
 //ICON
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -52,8 +52,6 @@ export default function Stats({
     .toString()
     .split(',')
     .map(item => parseFloat(item));
-  longtitude = [map[0]];
-  latitude = [map[1]];
 
   //Acceleration
   acceleration = [stringSplited[3]]; //add value to specific one
@@ -86,6 +84,20 @@ export default function Stats({
   run_accl_avg = [run_acceleration_info_number[1]];
   run_accl_max = [run_acceleration_info_number[2]];
 
+  //HEATMAP
+  const stringArray = [
+    '10.80059,106.74493',
+    '10.800520,106.74490',
+    '10.800556,106.74493',
+  ];
+  const heatmapCoordinates = stringArray.map(coordinate => {
+    const [latitude, longitude] = coordinate
+      .split(',')
+      .map(c => parseFloat(c.trim()));
+    return {latitude, longitude};
+  });
+
+  //Calories - Donut chart
   const halfCircle = radius + strokeWidth;
   const circleCirumference = 2 * Math.PI * radius;
   const circleRef = useRef();
@@ -93,7 +105,11 @@ export default function Stats({
   const maxPerc = (100 * calories) / max;
   const strokeDashoffset =
     circleCirumference - (circleCirumference * maxPerc) / 100;
-  useEffect(() => {});
+
+  //save data
+  const handleSave = () => {
+    navigation.navigate('Submit');
+  };
 
   return (
     <View style={styles.container}>
@@ -111,186 +127,315 @@ export default function Stats({
             {/* CONTENT */}
             <View style={styles.stat__container}>
               <View style={styles.stat__list}>
-                <View style={styles.stat__box}>
-                  {/* ITEM - TIME */}
-                  <View style={[styles.stat__item, styles.break]}>
-                    {/* STAT ITEM CONTENT */}
-                    <View style={[styles.stat__item_content]}>
-                      {/* HEAD ITEM */}
-                      <View style={styles.item__head}>
-                        <View style={[styles.stat__icon, styles.time__blur]}>
-                          <Icon
-                            name="schedule"
-                            style={[styles.icon, styles.time]}
-                          />
+                <View style={styles.verical__list}>
+                  <View style={styles.stat__box}>
+                    {/* ITEM - TIME */}
+                    <View style={[styles.stat__item, styles.break]}>
+                      {/* STAT ITEM CONTENT */}
+                      <View style={[styles.stat__item_content]}>
+                        {/* HEAD ITEM */}
+                        <View style={styles.item__head}>
+                          <View style={[styles.stat__icon, styles.time__blur]}>
+                            <Icon
+                              name="schedule"
+                              style={[styles.icon, styles.time]}
+                            />
+                          </View>
+                          <Text style={styles.stat__name}>Time</Text>
                         </View>
-                        <Text style={styles.stat__name}>Time</Text>
-                      </View>
-                      {/* STAT NUMBER */}
-                      <View style={styles.item__number}>
-                        <Text style={styles.number}>{activeTimeInMinute}</Text>
-                        <Text style={styles.unit}>mins</Text>
-                      </View>
-                    </View>
-                  </View>
-                  {/* ITEM - CALORIES */}
-                  <View style={[styles.stat__item, styles.break]}>
-                    {/* STAT ITEM CONTENT */}
-                    <View style={[styles.stat__item_content]}>
-                      {/* HEAD ITEM */}
-                      <View style={styles.item__head}>
-                        <View
-                          style={[styles.stat__icon, styles.calories__blur]}>
-                          <Icon
-                            name="local-fire-department"
-                            style={[styles.icon, styles.calories]}
-                          />
-                        </View>
-                        <Text style={styles.stat__name}>Calories</Text>
-                      </View>
-                      {/* STAT NUMBER */}
-                      <View style={styles.item__number}>
-                        <View>
-                          <Svg
-                            width={radius * 2}
-                            height={radius * 2}
-                            viewBox={`0 0 ${halfCircle * 2} ${halfCircle * 2}`}>
-                            <G
-                              rotation="-90"
-                              origin={`${halfCircle},${halfCircle}`}>
-                              <Circle
-                                cx="50%"
-                                cy="50%"
-                                stroke={color}
-                                strokeWidth={strokeWidth}
-                                r={radius}
-                                strokeOpacity={0.2}
-                                fill="transparent"
-                              />
-                              <AnimatedCircle
-                                ref={circleRef}
-                                cx="50%"
-                                cy="50%"
-                                stroke={color}
-                                strokeWidth={strokeWidth}
-                                r={radius}
-                                fill="transparent"
-                                strokeDasharray={circleCirumference}
-                                strokeDashoffset={strokeDashoffset}
-                                strokeLinecap="round"
-                              />
-                            </G>
-                          </Svg>
-                        </View>
-                        <Text style={styles.unit}>
-                          {calories}/{caloriesTarget} kcal
-                        </Text>
-                        {calories >= 200 ? (
-                          <Text style={styles.congrate}>
-                            You have reached your goal!
+                        {/* STAT NUMBER */}
+                        <View style={styles.item__number}>
+                          <Text style={styles.number}>
+                            {activeTimeInMinute}
                           </Text>
-                        ) : (
-                          <></>
-                        )}
+                          <Text style={styles.unit}>mins</Text>
+                        </View>
+                      </View>
+                    </View>
+                    {/* ITEM - CALORIES */}
+                    <View style={[styles.stat__item, styles.break]}>
+                      {/* STAT ITEM CONTENT */}
+                      <View style={[styles.stat__item_content]}>
+                        {/* HEAD ITEM */}
+                        <View style={styles.item__head}>
+                          <View
+                            style={[styles.stat__icon, styles.calories__blur]}>
+                            <Icon
+                              name="local-fire-department"
+                              style={[styles.icon, styles.calories]}
+                            />
+                          </View>
+                          <Text style={styles.stat__name}>Calories</Text>
+                        </View>
+                        {/* STAT NUMBER */}
+                        <View style={styles.item__number}>
+                          <View>
+                            <Svg
+                              width={radius * 2}
+                              height={radius * 2}
+                              viewBox={`0 0 ${halfCircle * 2} ${
+                                halfCircle * 2
+                              }`}>
+                              <G
+                                rotation="-90"
+                                origin={`${halfCircle},${halfCircle}`}>
+                                <Circle
+                                  cx="50%"
+                                  cy="50%"
+                                  stroke={color}
+                                  strokeWidth={strokeWidth}
+                                  r={radius}
+                                  strokeOpacity={0.2}
+                                  fill="transparent"
+                                />
+                                <AnimatedCircle
+                                  ref={circleRef}
+                                  cx="50%"
+                                  cy="50%"
+                                  stroke={color}
+                                  strokeWidth={strokeWidth}
+                                  r={radius}
+                                  fill="transparent"
+                                  strokeDasharray={circleCirumference}
+                                  strokeDashoffset={strokeDashoffset}
+                                  strokeLinecap="round"
+                                />
+                              </G>
+                            </Svg>
+                          </View>
+                          <Text style={styles.unit}>
+                            {calories}/{caloriesTarget} kcal
+                          </Text>
+                          {calories >= 200 ? (
+                            <Text style={styles.congrate}>
+                              You have reached your goal!
+                            </Text>
+                          ) : (
+                            <></>
+                          )}
+                        </View>
+                      </View>
+                    </View>
+                    {/* ITEM - JUMP ACCELERATION */}
+                    <View style={[styles.stat__item, styles.break]}>
+                      {/* STAT ITEM CONTENT */}
+                      <View style={[styles.stat__item_content]}>
+                        <View style={styles.stat__jump}>
+                          <Text style={styles.bottom__name}>
+                            Jump Acceleration
+                          </Text>
+                          <Image source={Jump1} style={styles.jump__image} />
+                        </View>
+                        {/* STAT NUMBER */}
+                        <View style={styles.item__number}>
+                          <Text style={styles.number}>{jump_accl_max}</Text>
+                          <Text style={styles.unit}>m/s</Text>
+                        </View>
                       </View>
                     </View>
                   </View>
-                  {/* ITEM - DISTANCE */}
-                  <View style={[styles.stat__item, styles.break]}>
-                    {/* STAT ITEM CONTENT */}
-                    <View style={[styles.stat__item_content]}>
-                      {/* HEAD ITEM */}
-                      <View style={styles.item__head}>
-                        <View
-                          style={[styles.stat__icon, styles.distance__blur]}>
-                          <Icon
-                            name="directions-walk"
-                            style={[styles.icon, styles.distance]}
-                          />
+                  <View style={styles.stat__box}>
+                    {/* ITEM - SPRINT */}
+                    <View style={[styles.stat__item, styles.break]}>
+                      {/* STAT ITEM CONTENT */}
+                      <View style={[styles.stat__item_content]}>
+                        {/* HEAD ITEM */}
+                        <View style={styles.item__head}>
+                          <View
+                            style={[styles.stat__icon, styles.sprint__blur]}>
+                            <Icon
+                              name="directions-run"
+                              style={[styles.icon, styles.sprint]}
+                            />
+                          </View>
+                          <Text style={styles.stat__name}>Sprint</Text>
                         </View>
-                        <Text style={styles.stat__name}>Distance</Text>
+                        {/* STAT NUMBER */}
+                        <View style={styles.item__number}>
+                          <Text style={styles.number}>{run_avg}</Text>
+                          <Text style={styles.unit}>AVG m/s</Text>
+                        </View>
                       </View>
-                      {/* STAT NUMBER */}
-                      <View style={styles.item__number}>
-                        <Text style={styles.number}>{distance}</Text>
-                        <Text style={styles.unit}>km</Text>
+                    </View>
+                    {/* ITEM - STEPS */}
+                    <View style={[styles.stat__item, styles.break]}>
+                      {/* STAT ITEM CONTENT */}
+                      <View style={[styles.stat__item_content]}>
+                        {/* HEAD ITEM */}
+                        <View style={styles.item__head}>
+                          <View style={[styles.stat__icon, styles.step__blur]}>
+                            <Icon
+                              name="run-circle"
+                              style={[styles.icon, styles.step]}
+                            />
+                          </View>
+                          <Text style={styles.stat__name}>Steps</Text>
+                        </View>
+                        {/* STAT NUMBER */}
+                        <View style={styles.item__number}>
+                          <Text style={styles.number}>{steps}</Text>
+                          <Text style={styles.unit}>steps</Text>
+                        </View>
+                      </View>
+                    </View>
+                    {/* ITEM - DISTANCE */}
+                    <View style={[styles.stat__item, styles.break]}>
+                      {/* STAT ITEM CONTENT */}
+                      <View style={[styles.stat__item_content]}>
+                        {/* HEAD ITEM */}
+                        <View style={styles.item__head}>
+                          <View
+                            style={[styles.stat__icon, styles.distance__blur]}>
+                            <Icon
+                              name="directions-walk"
+                              style={[styles.icon, styles.distance]}
+                            />
+                          </View>
+                          <Text style={styles.stat__name}>Distance</Text>
+                        </View>
+                        {/* STAT NUMBER */}
+                        <View style={styles.item__number}>
+                          <Text style={styles.number}>{distance}</Text>
+                          <Text style={styles.unit}>km</Text>
+                        </View>
+                      </View>
+                    </View>
+                    {/* ITEM - JUMP */}
+                    <View style={[styles.stat__item, styles.break]}>
+                      {/* STAT ITEM CONTENT */}
+                      <View style={[styles.stat__item_content]}>
+                        {/* HEAD ITEM */}
+                        <View style={styles.item__head}>
+                          <View style={[styles.stat__icon, styles.jump__blur]}>
+                            <Icon
+                              name="arrow-upward"
+                              style={[styles.icon, styles.jump]}
+                            />
+                          </View>
+                          <Text style={styles.stat__name}>Jump</Text>
+                        </View>
+                        {/* STAT NUMBER */}
+                        <View style={styles.item__number}>
+                          <Text style={styles.number}>{jump}</Text>
+                          <Text style={styles.unit}>jumps</Text>
+                        </View>
                       </View>
                     </View>
                   </View>
                 </View>
-                <View style={styles.stat__box}>
-                  {/* ITEM - SPRINT */}
-                  <View style={[styles.stat__item, styles.break]}>
-                    {/* STAT ITEM CONTENT */}
-                    <View style={[styles.stat__item_content]}>
-                      {/* HEAD ITEM */}
-                      <View style={styles.item__head}>
-                        <View style={[styles.stat__icon, styles.sprint__blur]}>
-                          <Icon
-                            name="directions-run"
-                            style={[styles.icon, styles.sprint]}
-                          />
-                        </View>
-                        <Text style={styles.stat__name}>Sprint</Text>
+                {/* ITEM - HEATMAP */}
+                <View style={[styles.stat__item]}>
+                  {/* STAT ITEM CONTENT */}
+                  <View style={[styles.stat__item_content]}>
+                    {/* HEAD ITEM */}
+                    <View style={styles.item__head}>
+                      <View style={[styles.stat__icon, styles.heatmap__blur]}>
+                        <Icon
+                          name="location-on"
+                          style={[styles.icon, styles.heatmap]}
+                        />
                       </View>
-                      {/* STAT NUMBER */}
-                      <View style={styles.item__number}>
+                      <Text style={styles.stat__name}>Heat map</Text>
+                    </View>
+                    {/* MAP */}
+                    <View style={styles.map__container}>
+                      <MapView
+                        style={styles.map}
+                        initialRegion={{
+                          latitude: map[0], // Set the initial latitude of the map CENTER OF VN
+                          longitude: map[1], // Set the initial longitude of the map CENTER OF VN
+                          latitudeDelta: 0.0005, // Adjust the delta values as needed to zoom in/out
+                          longitudeDelta: 0.0005,
+                        }}
+                        mapType="satellite" // Change the map type to satellite
+                      >
+                        <Heatmap
+                          points={heatmapCoordinates}
+                          radius={10} // Adjust the radius of each heatmap point
+                          opacity={0.8} // Adjust the opacity of the heatmap
+                        />
+                      </MapView>
+                    </View>
+                  </View>
+                </View>
+                {/* ITEM-RUN */}
+                <View style={styles.stat__item}>
+                  {/* STAT ITEM CONTENT */}
+                  <View style={[styles.stat__item_content]}>
+                    {/* HEAD ITEM */}
+                    <View style={styles.item__head}>
+                      <View style={[styles.stat__icon, styles.speed__blur]}>
+                        <Icon
+                          name="directions-run"
+                          style={[styles.icon, styles.speed]}
+                        />
+                      </View>
+                      <Text style={styles.stat__name}>Speed</Text>
+                    </View>
+                    {/* STAT NUMBER */}
+                    <View style={[styles.item__number, styles.multi]}>
+                      <View style={styles.item}>
+                        <Text style={styles.number}>{run}</Text>
+                        <Text style={styles.unit}>m/s</Text>
+                      </View>
+                      <View style={styles.line}></View>
+                      <View style={styles.item}>
                         <Text style={styles.number}>{run_avg}</Text>
                         <Text style={styles.unit}>AVG m/s</Text>
                       </View>
-                    </View>
-                  </View>
-                  {/* ITEM - STEPS */}
-                  <View style={[styles.stat__item, styles.break]}>
-                    {/* STAT ITEM CONTENT */}
-                    <View style={[styles.stat__item_content]}>
-                      {/* HEAD ITEM */}
-                      <View style={styles.item__head}>
-                        <View style={[styles.stat__icon, styles.step__blur]}>
-                          <Icon
-                            name="run-circle"
-                            style={[styles.icon, styles.step]}
-                          />
-                        </View>
-                        <Text style={styles.stat__name}>Steps</Text>
-                      </View>
-                      {/* STAT NUMBER */}
-                      <View style={styles.item__number}>
-                        <Text style={styles.number}>{steps}</Text>
-                        <Text style={styles.unit}>steps</Text>
+                      <View style={styles.line}></View>
+                      <View style={styles.item}>
+                        <Text style={styles.number}>{run_max}</Text>
+                        <Text style={styles.unit}>MAX m/s</Text>
                       </View>
                     </View>
                   </View>
-                  {/* ITEM - JUMP ACCELERATION */}
-                  <View style={[styles.stat__item, styles.break]}>
-                    {/* STAT ITEM CONTENT */}
-                    <View style={[styles.stat__item_content]}>
-                      <View style={styles.stat__jump}>
-                        <Text style={styles.bottom__name}>
-                          Jump Acceleration
-                        </Text>
-                        <Image source={Jump1} style={styles.jump__image} />
+                </View>
+                {/* ITEM-RUN ACCELERATION*/}
+                <View style={styles.stat__item}>
+                  {/* STAT ITEM CONTENT */}
+                  <View style={[styles.stat__item_content]}>
+                    {/* HEAD ITEM */}
+                    <View style={styles.item__head}>
+                      <View
+                        style={[
+                          styles.stat__icon,
+                          styles.speed_accecleration__blur,
+                        ]}>
+                        <Icon
+                          name="call-made"
+                          style={[styles.icon, styles.speed_accecleration]}
+                        />
                       </View>
-                      {/* STAT NUMBER */}
-                      <View style={styles.item__number}>
-                        <Text style={styles.number}>{jump_accl_max}</Text>
+                      <Text style={styles.stat__name}>Speed Acceleration</Text>
+                    </View>
+                    {/* STAT NUMBER */}
+                    <View style={[styles.item__number, styles.multi]}>
+                      <View style={styles.item}>
+                        <Text style={styles.number}>{run_accl}</Text>
                         <Text style={styles.unit}>m/s</Text>
                       </View>
+                      <View style={styles.line}></View>
+                      <View style={styles.item}>
+                        <Text style={styles.number}>{run_accl_avg}</Text>
+                        <Text style={styles.unit}>AVG m/s</Text>
+                      </View>
+                      <View style={styles.line}></View>
+                      <View style={styles.item}>
+                        <Text style={styles.number}>{run_accl_max}</Text>
+                        <Text style={styles.unit}>MAX m/s</Text>
+                      </View>
                     </View>
                   </View>
                 </View>
               </View>
-              {/* HEAT MAP */}
-              <View style={styles.stat__item}>
-                <View style={styles.stat__item_content}>
-                  <View style={styles.header}>
-                    <Text style={styles.stat__name}>Heat map</Text>
-                  </View>
-                  <View style={styles.heatmap}>
-                    <Image source={Field} style={styles.heatmap__image} />
-                  </View>
+              <TouchableOpacity
+                style={styles.save__btn_container}
+                onPress={handleSave}>
+                <View style={styles.save__btn}>
+                  <Text style={styles.save__btn_text}>save your data</Text>
                 </View>
-              </View>
+              </TouchableOpacity>
             </View>
           </View>
         </ScrollView>
@@ -328,9 +473,12 @@ const styles = StyleSheet.create({
     height: '100%',
     marginTop: 5,
     paddingHorizontal: 10,
-    paddingBottom: 500, //clear after done
+    paddingBottom: 200, //clear after done
   },
   stat__list: {
+    gap: 20,
+  },
+  verical__list: {
     flexDirection: 'row',
     // alignItems: 'center',
     justifyContent: 'space-between',
@@ -359,7 +507,6 @@ const styles = StyleSheet.create({
   },
   item__head: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
   },
   stat__icon: {
@@ -401,20 +548,23 @@ const styles = StyleSheet.create({
     fontSize: 25,
     color: '#F16767',
   },
-  heatmap: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingBottom: 20,
+  jump__blur: {
+    backgroundColor: '#4B333C',
   },
-  heatmap__image: {
-    width: '80%',
-    height: 150,
-    resizeMode: 'cover',
+  jump: {
+    color: '#F44336',
+  },
+  heatmap__blur: {
+    backgroundColor: '#4D292F',
+  },
+  heatmap: {
+    color: '#F44336',
   },
   stat__name: {
     fontSize: 18,
     color: '#FFF',
     fontWeight: 600,
+    marginLeft: 10,
   },
   stat__jump: {
     alignItems: 'center',
@@ -451,5 +601,59 @@ const styles = StyleSheet.create({
     marginTop: 10,
     color: '#43A047',
     textAlign: 'center',
+  },
+  map__container: {
+    marginTop: 20,
+    paddingBottom: 10,
+  },
+  map: {
+    width: '100%',
+    height: 250,
+  },
+  speed__blur: {
+    backgroundColor: '#4F2E2A',
+  },
+  speed: {
+    color: '#FF5722',
+  },
+  multi: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    marginTop: 10,
+  },
+  item: {
+    alignItems: 'center',
+    width: '31%',
+  },
+  speed_accecleration__blur: {
+    backgroundColor: '#103945',
+  },
+  speed_accecleration: {
+    color: '#00ACC1',
+  },
+  line: {
+    height: '50%',
+    width: 1,
+    backgroundColor: '#616161',
+  },
+  save__btn_container: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 30,
+  },
+  save__btn: {
+    backgroundColor: '#E79C25',
+    paddingHorizontal: 10,
+    paddingVertical: 15,
+    alignItems: 'center',
+    borderRadius: 5,
+    width: '70%',
+  },
+  save__btn_text: {
+    color: '#FFF',
+    textTransform: 'uppercase',
+    fontWeight: 600,
+    fontSize: 17,
   },
 });

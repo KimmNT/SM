@@ -17,7 +17,7 @@ export default function Scan({navigation}) {
         'rec get -d ' + qrcode + ' ' + record_data_idx;
       console.log(get_record_info_cmd);
       const dataResponse =
-        '$PNCSG,RCDD-G0001-15|4509|1234.5677,1234.9876|3|50,255|5,7,10|255,255,255*cs';
+        '$PNCSG,RCDD-G0001-15|4509|10.80059,106.74493|3|50,255|5,7,10|255,255,255*cs';
       navigation.navigate('Stats', {dataResponse});
     }
   };
