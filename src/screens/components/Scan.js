@@ -43,7 +43,7 @@ export default function Scan({navigation}) {
       }
       cameraStyle={{
         position: 'relative',
-        height: '40%',
+        height: '30%',
       }}
       bottomContent={
         <View style={styles.desc}>
@@ -81,14 +81,15 @@ const styles = StyleSheet.create({
     gap: 30,
   },
   desc: {
+    paddingTop: 10,
     height: '100%',
-    width: '70%',
+    width: '100%',
     gap: 30,
     alignItems: 'center',
-    // backgroundColor: 'red',
+    backgroundColor: '#15212D',
   },
   desc__text: {
-    color: '#27292B',
+    color: '#FFF',
   },
   highlight: {
     fontSize: 20,
@@ -110,7 +111,7 @@ const styles = StyleSheet.create({
     color: '#E53935',
   },
   fail__wait: {
-    color: '#27292B',
+    color: '#E53935',
     fontWeight: 600,
   },
   desc__btn_success: {

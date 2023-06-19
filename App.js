@@ -7,6 +7,7 @@ import {LogBox} from 'react-native';
 import Success from './src/screens/components/Success';
 import Stats from './src/screens/IOT/Stats';
 import Scan from './src/screens/components/Scan';
+import NewSplash from './src/screens/NewSplash';
 
 //remove warning ViewPropTypes will be removed from React Native,
 LogBox.ignoreLogs([
@@ -19,7 +20,7 @@ const App = () => {
   useEffect(() => {
     setTimeout(() => {
       setIsSplash(false);
-    }, 5000);
+    }, 2500);
   });
   return (
     // <NavigationContainer>

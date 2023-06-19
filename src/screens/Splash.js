@@ -9,7 +9,6 @@ import background from '../../assets/images/background.png';
 import brand from '../../assets/images/brand_name.png';
 
 const SplashScreen = ({navigation}) => {
-  const [isOpacity, setIsOpactiy] = useState(true);
   const playerMove = new Animated.Value(0);
   const ballMove = new Animated.Value(0);
   const fieldMove = new Animated.Value(0);
@@ -17,12 +16,6 @@ const SplashScreen = ({navigation}) => {
   const logoOpacity = new Animated.Value(0);
   const textUpMove = new Animated.Value(0);
   const textDownMove = new Animated.Value(0);
-
-  useEffect(() => {
-    setTimeout(() => {
-      setIsOpactiy(false);
-    }, 2000);
-  });
 
   useEffect(() => {
     //BRAND NAME
@@ -65,49 +58,41 @@ const SplashScreen = ({navigation}) => {
   }, [logoOpacity, playerMove, ballMove, fieldMove, brandMove]);
 
   return (
-    <>
-      {isOpacity ? (
-        <View style={styles.layer}>
-          <Image source={background} style={{width: '100%', height: '100%'}} />
-        </View>
-      ) : (
-        <View style={styles.container}>
-          <View style={styles.content}>
-            <Animated.Image
-              source={player}
-              style={[styles.player, {transform: [{translateX: playerMove}]}]}
-            />
+    <View style={styles.container}>
+      <View style={styles.content}>
+        <Animated.Image
+          source={player}
+          style={[styles.player, {transform: [{translateX: playerMove}]}]}
+        />
 
-            <Animated.Image
-              source={ball}
-              style={[styles.ball, {transform: [{translateX: ballMove}]}]}
-            />
-            <Animated.Image
-              source={field}
-              style={[styles.field, {transform: [{translateY: fieldMove}]}]}
-            />
-          </View>
-          <View style={styles.brand__container}>
-            <Animated.Text
-              style={[
-                styles.brand__name,
-                styles.up,
-                {transform: [{translateY: textUpMove}]},
-              ]}>
-              Smart
-            </Animated.Text>
-            <Animated.Text
-              style={[
-                styles.brand__name,
-                styles.down,
-                {transform: [{translateY: textDownMove}]},
-              ]}>
-              Coach
-            </Animated.Text>
-          </View>
-        </View>
-      )}
-    </>
+        <Animated.Image
+          source={ball}
+          style={[styles.ball, {transform: [{translateX: ballMove}]}]}
+        />
+        <Animated.Image
+          source={field}
+          style={[styles.field, {transform: [{translateY: fieldMove}]}]}
+        />
+      </View>
+      <View style={styles.brand__container}>
+        <Animated.Text
+          style={[
+            styles.brand__name,
+            styles.up,
+            {transform: [{translateY: textUpMove}]},
+          ]}>
+          Smart
+        </Animated.Text>
+        <Animated.Text
+          style={[
+            styles.brand__name,
+            styles.down,
+            {transform: [{translateY: textDownMove}]},
+          ]}>
+          Coach
+        </Animated.Text>
+      </View>
+    </View>
   );
 };
 
