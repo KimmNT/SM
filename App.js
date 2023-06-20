@@ -23,13 +23,6 @@ const App = () => {
     }, 2500);
   });
   return (
-    // <NavigationContainer>
-    //   <Stack.Navigator headerMode="none" initialRouteName="Splash">
-    //     <Stack.Screen name="Splash" component={Splash} />
-    //     <Stack.Screen name="Home" component={Home} />
-    //   </Stack.Navigator>
-    // </NavigationContainer>
-
     <SafeAreaProvider>{isSplash ? <Splash /> : <Routing />}</SafeAreaProvider>
   );
 };

@@ -15,13 +15,11 @@ export default function ScanArea() {
 const styles = StyleSheet.create({
   area__container: {
     position: 'relative',
-    // backgroundColor: 'teal',
     width: 300,
     height: 300,
   },
   corner: {
     position: 'absolute',
-    // backgroundColor: 'maroon',
     width: 50,
     height: 50,
   },

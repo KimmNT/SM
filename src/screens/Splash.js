@@ -7,23 +7,15 @@ import field from '../../assets/images/field.png';
 import ball from '../../assets/images/flying_ball.png';
 import background from '../../assets/images/background.png';
 import brand from '../../assets/images/brand_name.png';
+import Logo from '../../assets/images/logo.png';
 
 const SplashScreen = ({navigation}) => {
   const playerMove = new Animated.Value(0);
   const ballMove = new Animated.Value(0);
   const fieldMove = new Animated.Value(0);
-  const brandMove = new Animated.Value(0);
   const logoOpacity = new Animated.Value(0);
-  const textUpMove = new Animated.Value(0);
-  const textDownMove = new Animated.Value(0);
 
   useEffect(() => {
-    //BRAND NAME
-    Animated.timing(logoOpacity, {
-      toValue: 1,
-      duration: 1000,
-      useNativeDriver: true,
-    }).start();
     //PLAYER
     Animated.timing(playerMove, {
       toValue: -60,
@@ -42,20 +34,7 @@ const SplashScreen = ({navigation}) => {
       duration: 1000,
       useNativeDriver: true,
     }).start();
-    //BRAND UP
-    Animated.timing(textUpMove, {
-      toValue: -80,
-      duration: 1000,
-      useNativeDriver: true,
-    }).start();
-    //BRAND DOWN
-    Animated.timing(textDownMove, {
-      toValue: -75,
-      duration: 1000,
-      delay: 100,
-      useNativeDriver: true,
-    }).start();
-  }, [logoOpacity, playerMove, ballMove, fieldMove, brandMove]);
+  }, [logoOpacity, playerMove, ballMove, fieldMove]);
 
   return (
     <View style={styles.container}>
@@ -73,24 +52,6 @@ const SplashScreen = ({navigation}) => {
           source={field}
           style={[styles.field, {transform: [{translateY: fieldMove}]}]}
         />
-      </View>
-      <View style={styles.brand__container}>
-        <Animated.Text
-          style={[
-            styles.brand__name,
-            styles.up,
-            {transform: [{translateY: textUpMove}]},
-          ]}>
-          Smart
-        </Animated.Text>
-        <Animated.Text
-          style={[
-            styles.brand__name,
-            styles.down,
-            {transform: [{translateY: textDownMove}]},
-          ]}>
-          Coach
-        </Animated.Text>
       </View>
     </View>
   );
@@ -118,7 +79,7 @@ const styles = StyleSheet.create({
   },
   player: {
     position: 'absolute',
-    top: 70,
+    // top: 70,
     right: -50,
     width: 210,
     height: 250,
@@ -126,7 +87,7 @@ const styles = StyleSheet.create({
   },
   ball: {
     position: 'absolute',
-    top: 240,
+    // top: 240,
     left: -40,
     width: 131,
     height: 40,
@@ -134,29 +95,28 @@ const styles = StyleSheet.create({
   },
   field: {
     position: 'absolute',
-    top: 330,
+    bottom: 150,
     width: 200,
     height: 100,
     resizeMode: 'cover',
   },
-  brand__container: {
-    marginBottom: 60,
-    // backgroundColor: 'red',
-    marginHorizontal: 50,
+  logo__container: {
+    position: 'absolute',
+    bottom: 50,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  brand__name: {
-    fontSize: 50,
-    fontWeight: 800,
+  logo__image: {
+    width: 200,
+    height: 200,
+    resizeMode: 'cover',
+  },
+  logo__name: {
+    textTransform: 'uppercase',
+    fontWeight: 600,
+    fontSize: 30,
     color: '#FFF',
   },
-  up: {},
-  down: {
-    textAlign: 'right',
-  },
-  // brand: {
-  //   width: 200,
-  //   height: 100,
-  // },
 });
 
 export default SplashScreen;

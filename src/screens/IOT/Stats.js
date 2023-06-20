@@ -117,7 +117,7 @@ export default function Stats({
       <SafeAreaView>
         {/* HEADER */}
         <View style={styles.header}>
-          <TouchableOpacity onPress={() => navigation.goBack()}>
+          <TouchableOpacity onPress={() => navigation.popToTop()}>
             <BackArrow />
           </TouchableOpacity>
           <Text style={styles.header__text}>Dashboard</Text>
@@ -339,6 +339,7 @@ export default function Stats({
                     </View>
                     {/* MAP */}
                     <View style={styles.map__container}>
+                      <View style={styles.map__disable}></View>
                       <MapView
                         style={styles.map}
                         initialRegion={{
@@ -603,8 +604,16 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   map__container: {
+    position: 'relative',
     marginTop: 20,
     paddingBottom: 10,
+  },
+  map__disable: {
+    position: 'absolute',
+    width: '100%',
+    height: 250,
+    backgroundColor: 'transparent',
+    zIndex: 1,
   },
   map: {
     width: '100%',

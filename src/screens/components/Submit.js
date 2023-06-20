@@ -169,7 +169,6 @@ const styles = StyleSheet.create({
   },
   content: {
     padding: 15,
-    // backgroundColor: 'teal',
   },
   header: {
     marginTop: 10,

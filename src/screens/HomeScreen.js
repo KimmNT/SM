@@ -9,11 +9,9 @@ import {
 } from 'react-native';
 import React, {useEffect} from 'react';
 
-//STYLE
-import share from '../../assets/global/share';
-
 //IMAGE
 import welcomeBG from '../../assets/images/welcome_bg.png';
+import Logo from '../../assets/images/logo.png';
 
 //ICON
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -42,13 +40,9 @@ export default function HomeScreen({navigation}) {
             <Text style={[styles.time, styles.highlight]}>{currentTime}</Text>
             <Text style={styles.time}>{dayPeriod}</Text>
           </Animated.View>
-          <View style={styles.welcome__brand}>
-            <Animated.Text style={[styles.brand__name, styles.up]}>
-              Smart
-            </Animated.Text>
-            <Animated.Text style={[styles.brand__name, styles.down]}>
-              Coach
-            </Animated.Text>
+          <View style={styles.welcome__logo}>
+            <Image source={Logo} style={styles.logo__image} />
+            <Text style={styles.logo__name}>smart coach</Text>
           </View>
           <View style={styles.welcome__scan}>
             <Text style={styles.scan__text}>Scan your device</Text>
@@ -108,18 +102,20 @@ const styles = StyleSheet.create({
     fontWeight: 700,
     fontSize: 20,
   },
-  welcome__brand: {
-    width: '80%',
+  welcome__logo: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  brand__name: {
-    fontSize: 60,
-    // backgroundColor: 'red',
+  logo__image: {
+    width: 200,
+    height: 200,
+    resizeMode: 'cover',
+  },
+  logo__name: {
+    textTransform: 'uppercase',
+    fontWeight: 600,
+    fontSize: 30,
     color: '#FFF',
-    fontWeight: 700,
-  },
-  up: {},
-  down: {
-    textAlign: 'right',
   },
   welcome__scan: {
     position: 'absolute',

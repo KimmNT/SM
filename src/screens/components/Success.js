@@ -34,7 +34,7 @@ export default function Success({navigation}) {
             {/* BUTTON */}
             <TouchableOpacity
               style={styles.submit__btn}
-              onPress={() => navigation.navigate('Scan')}>
+              onPress={() => navigation.popToTop()}>
               <Text style={styles.submit__btn_text}>back to home</Text>
             </TouchableOpacity>
           </View>
