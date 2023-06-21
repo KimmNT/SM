@@ -3,11 +3,14 @@ import Splash from './src/screens/Splash';
 import HomeScreen from './src/screens/HomeScreen';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import Routing from './src/router/Routing';
-import {LogBox} from 'react-native';
+import {LogBox, View, Text} from 'react-native';
 import Success from './src/screens/components/Success';
 import Stats from './src/screens/IOT/Stats';
 import Scan from './src/screens/components/Scan';
 import NewSplash from './src/screens/NewSplash';
+
+//import
+import BLE from './src/screens/BLE';
 
 //remove warning ViewPropTypes will be removed from React Native,
 LogBox.ignoreLogs([
@@ -23,7 +26,10 @@ const App = () => {
     }, 2500);
   });
   return (
-    <SafeAreaProvider>{isSplash ? <Splash /> : <Routing />}</SafeAreaProvider>
+    // <SafeAreaProvider>{isSplash ? <Splash /> : <Routing />}</SafeAreaProvider>
+    <View style={{backgroundColor: '#FFF'}}>
+      <BLE />
+    </View>
   );
 };
 

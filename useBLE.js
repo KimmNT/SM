@@ -1,14 +1,7 @@
 /* eslint-disable no-bitwise */
 import {useState} from 'react';
 import {PermissionsAndroid, Platform} from 'react-native';
-import {
-  BleError,
-  BleManager,
-  Characteristic,
-  Device,
-} from 'react-native-ble-plx';
-import {PERMISSIONS, requestMultiple} from 'react-native-permissions';
-import DeviceInfo from 'react-native-device-info';
+import {BleManager} from 'react-native-ble-plx';
 
 import {atob} from 'react-native-quick-base64';
 
@@ -18,25 +11,12 @@ const IOT__RX__CHARACTERISTIC = '6e400002-b5a3-f393-e0a9-e50e24dcca9e';
 
 const bleManager = new BleManager();
 
-type VoidCallback = (result: boolean) => void;
+function useBLE() {
+  const [allDevices, setAllDevices] = useState([]);
+  const [connectedDevice, setConnectedDevice] = useState(null);
+  const [heartRate, setHeartRate] = useState('');
 
-interface BluetoothLowEnergyApi {
-  requestPermissions(cb: VoidCallback): Promise<void>;
-  scanForDevices(): void;
-  // scanForPeripherals(): void;
-  connectToDevice: (deviceId: Device) => Promise<void>;
-  disconnectFromDevice: () => void;
-  connectedDevice: Device | null;
-  allDevices: Device[];
-  heartRate: string;
-}
-
-function useBLE(): BluetoothLowEnergyApi {
-  const [allDevices, setAllDevices] = useState<Device[]>([]);
-  const [connectedDevice, setConnectedDevice] = useState<Device | null>(null);
-  const [heartRate, setHeartRate] = useState<string>('');
-
-  const requestPermissions = async (cb: VoidCallback) => {
+  const requestPermissions = async cb => {
     if (Platform.OS === 'android') {
       const grantedStatus = await PermissionsAndroid.request(
         PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
@@ -54,30 +34,15 @@ function useBLE(): BluetoothLowEnergyApi {
     }
   };
 
-  const isDuplicateDevice = (devices: Device[], nextDevice: Device) =>
+  const isDuplicateDevice = (devices, nextDevice) =>
     devices.findIndex(device => nextDevice.id === device.id) > -1;
-
-  const scanForPeripherals = () =>
-    bleManager.startDeviceScan(null, null, (error, device) => {
-      if (error) {
-        console.log(error);
-      }
-      if (device && device.name?.includes('GENIO')) {
-        setAllDevices((prevState: Device[]) => {
-          if (!isDuplicateDevice(prevState, device)) {
-            return [...prevState, device];
-          }
-          return prevState;
-        });
-      }
-    });
 
   const scanForDevices = () => {
     bleManager.startDeviceScan(null, null, (error, device) => {
       if (error) {
         console.log('Yo, error: ', error);
       }
-      if (device && device.name?.includes('BBC')) {
+      if (device && device.name?.includes('Genino ')) {
         setAllDevices(prevState => {
           if (!isDuplicateDevice(prevState, device)) {
             return [...prevState, device];
@@ -87,7 +52,7 @@ function useBLE(): BluetoothLowEnergyApi {
       }
     });
   };
-  const connectToDevice = async (device: Device) => {
+  const connectToDevice = async device => {
     try {
       const deviceConnection = await bleManager.connectToDevice(device.id);
       setConnectedDevice(deviceConnection);
@@ -107,10 +72,7 @@ function useBLE(): BluetoothLowEnergyApi {
     }
   };
 
-  const onHeartRateUpdate = (
-    error: BleError | null,
-    characteristic: Characteristic | null,
-  ) => {
+  const onHeartRateUpdate = (error, characteristic) => {
     if (error) {
       console.log(error);
       return;
@@ -134,7 +96,7 @@ function useBLE(): BluetoothLowEnergyApi {
     setHeartRate(rawData);
   };
 
-  const startStreamingData = async (device: Device) => {
+  const startStreamingData = async device => {
     if (device) {
       device.monitorCharacteristicForService(
         IOT__UUID,

@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useCallback} from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -11,7 +11,7 @@ import DeviceModal from '../../DeviceConnectionModal';
 import useBLE from '../../useBLE';
 import {Device} from 'react-native-ble-plx';
 
-const App = () => {
+const App = props => {
   const {
     requestPermissions,
     scanForDevices,
@@ -49,11 +49,14 @@ const App = () => {
             Please connect to an IOT device
           </Text>
         )}
-
-        {/* {allDevices.map((device, index) => (
+        {/* 
+        {allDevices.map((device, index) => (
           <View key={index}>
-            <Text style={styles.device_name}>{device.serviceUUIDs}</Text>
-            <Text style={styles.device_name}>{device.id}</Text>
+            <TouchableOpacity
+              onPress={connectAndCloseModal}
+              style={modalStyle.ctaButton}>
+              <Text style={modalStyle.ctaButtonText}>{item.item.name}</Text>
+            </TouchableOpacity>
           </View>
         ))} */}
       </View>
@@ -72,13 +75,15 @@ const App = () => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#f2f2f2',
+    // flex: 1,
+    height: '100%',
+    backgroundColor: '#fff',
   },
   heartRateTitleWrapper: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#FFF',
   },
   heartRateTitleText: {
     fontSize: 30,
