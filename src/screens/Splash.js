@@ -5,9 +5,6 @@ import {View, Image, Animated, StyleSheet, Text} from 'react-native';
 import player from '../../assets/images/player.png';
 import field from '../../assets/images/field.png';
 import ball from '../../assets/images/flying_ball.png';
-import background from '../../assets/images/background.png';
-import brand from '../../assets/images/brand_name.png';
-import Logo from '../../assets/images/logo.png';
 
 const SplashScreen = ({navigation}) => {
   const playerMove = new Animated.Value(0);

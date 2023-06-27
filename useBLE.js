@@ -14,7 +14,7 @@ const bleManager = new BleManager();
 function useBLE() {
   const [allDevices, setAllDevices] = useState([]);
   const [connectedDevice, setConnectedDevice] = useState(null);
-  const [heartRate, setHeartRate] = useState('');
+  const [data, setData] = useState('Start with empty string');
 
   const requestPermissions = async cb => {
     if (Platform.OS === 'android') {
@@ -65,14 +65,16 @@ function useBLE() {
   };
 
   const disconnectFromDevice = () => {
+    console.log('disconneted');
     if (connectedDevice) {
       bleManager.cancelDeviceConnection(connectedDevice.id);
       setConnectedDevice(null);
-      // setHeartRate(0);
+      setData('');
+      console.log(data);
     }
   };
 
-  const onHeartRateUpdate = (error, characteristic) => {
+  const onDataUpdate = (error, characteristic) => {
     if (error) {
       console.log(error);
       return;
@@ -86,14 +88,14 @@ function useBLE() {
     // const firstBitValue: number = Number(rawData) & 0x01;
 
     // if (firstBitValue === 0) {
-    //   innerHeartRate = rawData[1].charCodeAt(0);
+    //   innerdata = rawData[1].charCodeAt(0);
     // } else {
-    //   innerHeartRate =
+    //   innerdata =
     //     Number(rawData[1].charCodeAt(0) << 8) +
     //     Number(rawData[2].charCodeAt(2));
     // }
 
-    setHeartRate(rawData);
+    setData(rawData);
   };
 
   const startStreamingData = async device => {
@@ -101,7 +103,7 @@ function useBLE() {
       device.monitorCharacteristicForService(
         IOT__UUID,
         IOT__TX__CHARACTERISTIC,
-        onHeartRateUpdate,
+        onDataUpdate,
       );
     } else {
       console.log('No Device Connected');
@@ -116,7 +118,7 @@ function useBLE() {
     allDevices,
     connectedDevice,
     disconnectFromDevice,
-    heartRate,
+    data,
   };
 }
 

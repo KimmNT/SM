@@ -1,22 +1,12 @@
 import React, {useEffect, useState} from 'react';
 import Splash from './src/screens/Splash';
-import HomeScreen from './src/screens/HomeScreen';
 import {SafeAreaProvider} from 'react-native-safe-area-context';
 import Routing from './src/router/Routing';
-import {LogBox, View, Text} from 'react-native';
-import Success from './src/screens/components/Success';
-import Stats from './src/screens/IOT/Stats';
-import Scan from './src/screens/components/Scan';
-import NewSplash from './src/screens/NewSplash';
-
-//import
-import BLE from './src/screens/BLE';
+import {LogBox} from 'react-native';
 
 //remove warning ViewPropTypes will be removed from React Native,
-LogBox.ignoreLogs([
-  'ViewPropTypes will be removed',
-  'ColorPropType will be removed',
-]);
+LogBox.ignoreLogs(['new NativeEventEmitter']); // Ignore log notification by message
+LogBox.ignoreAllLogs(); //Ignore all log notifications
 
 const App = () => {
   const [isSplash, setIsSplash] = useState(true);
@@ -26,10 +16,7 @@ const App = () => {
     }, 2500);
   });
   return (
-    // <SafeAreaProvider>{isSplash ? <Splash /> : <Routing />}</SafeAreaProvider>
-    <View style={{backgroundColor: '#FFF'}}>
-      <BLE />
-    </View>
+    <SafeAreaProvider>{isSplash ? <Splash /> : <Routing />}</SafeAreaProvider>
   );
 };
 

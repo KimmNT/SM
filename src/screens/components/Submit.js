@@ -12,12 +12,8 @@ import {Picker} from '@react-native-picker/picker';
 import clubsData from '../../databases/clubInfor.json';
 import BackArrow from './BackArrow';
 
-//ICON
-import Icon from 'react-native-vector-icons/MaterialIcons';
-
 //IMAGE
 import BackGround from '../../../assets/images/background.png';
-import Battery from '../../../assets/images/battery_percent.png';
 
 export default function Submit({navigation}) {
   const [selectedClub, setSelectedClub] = useState('');

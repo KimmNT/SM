@@ -1,32 +1,102 @@
-import React, {useState, useCallback} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import {
-  SafeAreaView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
+  Image,
+  Animated,
+  ScrollView,
+  Alert,
 } from 'react-native';
-import DeviceModal from '../../DeviceConnectionModal';
-// import PulseIndicator from './PulseIndicator';
+import DeviceModal from './components/DeviceConnectionModal';
 import useBLE from '../../useBLE';
-import {Device} from 'react-native-ble-plx';
+import Svg, {G, Circle} from 'react-native-svg';
+import MapView, {Heatmap} from 'react-native-maps';
 
-const App = props => {
+//IMAGE
+import welcomeBG from '../../assets/images/welcome_bg.png';
+import Logo from '../../assets/images/logo.png';
+import BackGround from '../../assets/images/background.png';
+import Jump1 from '../../assets/images/jump.png';
+
+//ICON
+import Icon from 'react-native-vector-icons/MaterialIcons';
+const AnimatedCircle = Animated.createAnimatedComponent(Circle);
+
+const BLE = ({
+  navigation,
+  radius = 60,
+  strokeWidth = 10,
+  color = '#FF6B00',
+  max = 200,
+}) => {
   const {
     requestPermissions,
     scanForDevices,
-    scanForPeripherals,
     allDevices,
     connectToDevice,
     connectedDevice,
-    heartRate,
+    data,
     disconnectFromDevice,
   } = useBLE();
   const [isModalVisible, setIsModalVisible] = useState(false);
 
+  //split the data
+
+  const dataSplited = data.split('|');
+  id = [dataSplited[0]];
+  server = [dataSplited[1]];
+  softVers = [dataSplited[2]];
+  hardVers = [dataSplited[3]];
+  steps = [dataSplited[4]];
+  calories = Math.round(steps * 0.03);
+  caloriesTarget = 200;
+  distance = (Math.floor(steps * 0.85) / 1000).toFixed(2);
+  longitudeDMS = [dataSplited[6]];
+  latitudeDMS = [dataSplited[5]];
+  battery = parseInt([dataSplited[7]]);
+  sprint = [dataSplited[8]];
+  trainTime = [dataSplited[9]];
+
+  //convert from DMS (degree - minute - second) to Decimal
+  const getDecimal = coordinate => {
+    const degree = Math.round(coordinate / 100);
+    const minute = Math.round(coordinate - degree * 100);
+    const second = ((coordinate - (degree * 100 + minute)) * 100).toFixed(2);
+
+    return (coordinateDecimal = (degree + minute / 60 + second / 3600).toFixed(
+      6,
+    ));
+  };
+
+  longitude = parseFloat(getDecimal(longitudeDMS));
+  latitude = parseFloat(getDecimal(latitudeDMS));
+
+  //CLOCK
+  const [clock, setClock] = useState(new Date());
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setClock(new Date());
+    }, 1000);
+    // Clean up the interval on component unmount
+    return () => {
+      clearInterval(timer);
+    };
+  }, []);
+
+  const hours = clock.getHours().toString().padStart(2, '0');
+  const minutes = clock.getMinutes().toString().padStart(2, '0');
+  const period = hours >= 12 ? 'PM' : 'AM';
+  const formattedHours = hours % 12 || 12;
+  const timeString = `${formattedHours}:${minutes}`;
+
+  //Hide Modal
   const hideModal = () => {
     setIsModalVisible(false);
   };
+
+  //Open Modal, pass connection function
   const openModal = async () => {
     requestPermissions(isGranted => {
       if (isGranted) {
@@ -36,83 +106,776 @@ const App = props => {
     });
   };
 
+  //Calories - Donut chart
+  const halfCircle = radius + strokeWidth;
+  const circleCirumference = 2 * Math.PI * radius;
+  const circleRef = useRef();
+
+  const maxPerc = (100 * calories) / max;
+  const strokeDashoffset =
+    circleCirumference - (circleCirumference * maxPerc) / 100;
+
+  //HEATMAP
+  const stringArray = [
+    '10.80059,106.74493',
+    '10.800520,106.74490',
+    '10.800556,106.74493',
+  ];
+  const heatmapCoordinates = stringArray.map(coordinate => {
+    const [latitude, longitude] = coordinate
+      .split(',')
+      .map(c => parseFloat(c.trim()));
+    return {latitude, longitude};
+  });
+
+  const handleDisconnect = () => {
+    Alert.alert('Disconnect warining!', 'Do you want to disconnect ?', [
+      {
+        text: 'Cancel',
+        onPress: () => console.log('Cancel disconnect'),
+      },
+      {
+        text: 'OK',
+        onPress: () => disconnectFromDevice(),
+      },
+    ]);
+  };
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.heartRateTitleWrapper}>
+    <View style={styles.container}>
+      <View style={styles.container}>
         {connectedDevice ? (
-          <View>
-            <Text style={{color: '#000'}}>the data is</Text>
-            <Text style={{color: '#000'}}>{heartRate}</Text>
+          <View style={styles.container}>
+            <Image source={BackGround} style={styles.background} />
+            {/* HEADER */}
+            <View style={styles.header}>
+              <Text style={styles.header__text}>Dashboard</Text>
+              <View style={styles.battery__container}>
+                <View
+                  style={{
+                    position: 'absolute',
+                    bottom: 0,
+                    left: 0,
+                    width: '100%',
+                    height: `${battery}%`,
+                    borderRadius: 38 / 2,
+                    backgroundColor: '#E79C25',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}></View>
+                <View style={styles.battery}>
+                  <Text style={styles.batter__status}>{battery}%</Text>
+                </View>
+              </View>
+            </View>
+            <ScrollView>
+              <View style={styles.content}>
+                {/* CONTENT */}
+                <View style={styles.stat__container}>
+                  <View style={styles.stat__list}>
+                    {/* VERTICAL LIST */}
+                    <View style={styles.vertical__list}>
+                      <View style={styles.stat__box}>
+                        {/* ITEM - TIME */}
+                        <View style={[styles.stat__item, styles.break]}>
+                          {/* STAT ITEM CONTENT */}
+                          <View style={[styles.stat__item_content]}>
+                            {/* HEAD ITEM */}
+                            <View style={styles.item__head}>
+                              <View
+                                style={[styles.stat__icon, styles.time__blur]}>
+                                <Icon
+                                  name="schedule"
+                                  style={[styles.icon, styles.time]}
+                                />
+                              </View>
+                              <Text style={styles.stat__name}>Time</Text>
+                            </View>
+                            {/* STAT NUMBER */}
+                            <View style={styles.item__number}>
+                              <Text style={styles.number}>{steps}</Text>
+                              <Text style={styles.unit}>mins</Text>
+                            </View>
+                          </View>
+                        </View>
+                        {/* ITEM - CALORIES */}
+                        <View style={[styles.stat__item, styles.break]}>
+                          {/* STAT ITEM CONTENT */}
+                          <View style={[styles.stat__item_content]}>
+                            {/* HEAD ITEM */}
+                            <View style={styles.item__head}>
+                              <View
+                                style={[
+                                  styles.stat__icon,
+                                  styles.calories__blur,
+                                ]}>
+                                <Icon
+                                  name="local-fire-department"
+                                  style={[styles.icon, styles.calories]}
+                                />
+                              </View>
+                              <Text style={styles.stat__name}>Calories</Text>
+                            </View>
+                            {/* STAT NUMBER */}
+                            <View style={styles.item__number}>
+                              <View>
+                                <Svg
+                                  width={radius * 2}
+                                  height={radius * 2}
+                                  viewBox={`0 0 ${halfCircle * 2} ${
+                                    halfCircle * 2
+                                  }`}>
+                                  <G
+                                    rotation="-90"
+                                    origin={`${halfCircle},${halfCircle}`}>
+                                    <Circle
+                                      cx="50%"
+                                      cy="50%"
+                                      stroke={color}
+                                      strokeWidth={strokeWidth}
+                                      r={radius}
+                                      strokeOpacity={0.2}
+                                      fill="transparent"
+                                    />
+                                    <AnimatedCircle
+                                      ref={circleRef}
+                                      cx="50%"
+                                      cy="50%"
+                                      stroke={color}
+                                      strokeWidth={strokeWidth}
+                                      r={radius}
+                                      fill="transparent"
+                                      strokeDasharray={circleCirumference}
+                                      strokeDashoffset={strokeDashoffset}
+                                      strokeLinecap="round"
+                                    />
+                                  </G>
+                                </Svg>
+                              </View>
+                              <Text style={styles.unit}>
+                                {calories}/{caloriesTarget} kcal
+                              </Text>
+                              {calories >= 200 ? (
+                                <Text style={styles.congrate}>
+                                  You have reached your goal!
+                                </Text>
+                              ) : (
+                                <></>
+                              )}
+                            </View>
+                          </View>
+                        </View>
+                        {/* ITEM - JUMP ACCELERATION */}
+                        <View style={[styles.stat__item, styles.break]}>
+                          {/* STAT ITEM CONTENT */}
+                          <View style={[styles.stat__item_content]}>
+                            <View style={styles.stat__jump}>
+                              <Text style={styles.bottom__name}>
+                                Jump Acceleration
+                              </Text>
+                              <Image
+                                source={Jump1}
+                                style={styles.jump__image}
+                              />
+                            </View>
+                            {/* STAT NUMBER */}
+                            <View style={styles.item__number}>
+                              <Text style={styles.number}>{sprint}</Text>
+                              <Text style={styles.unit}>m/s</Text>
+                            </View>
+                          </View>
+                        </View>
+                      </View>
+                      <View style={styles.stat__box}>
+                        {/* ITEM - SPRINT */}
+                        <View style={[styles.stat__item, styles.break]}>
+                          {/* STAT ITEM CONTENT */}
+                          <View style={[styles.stat__item_content]}>
+                            {/* HEAD ITEM */}
+                            <View style={styles.item__head}>
+                              <View
+                                style={[
+                                  styles.stat__icon,
+                                  styles.sprint__blur,
+                                ]}>
+                                <Icon
+                                  name="directions-run"
+                                  style={[styles.icon, styles.sprint]}
+                                />
+                              </View>
+                              <Text style={styles.stat__name}>Sprint</Text>
+                            </View>
+                            {/* STAT NUMBER */}
+                            <View style={styles.item__number}>
+                              <Text style={styles.number}>{sprint}</Text>
+                              <Text style={styles.unit}>AVG m/s</Text>
+                            </View>
+                          </View>
+                        </View>
+                        {/* ITEM - STEPS */}
+                        <View style={[styles.stat__item, styles.break]}>
+                          {/* STAT ITEM CONTENT */}
+                          <View style={[styles.stat__item_content]}>
+                            {/* HEAD ITEM */}
+                            <View style={styles.item__head}>
+                              <View
+                                style={[styles.stat__icon, styles.step__blur]}>
+                                <Icon
+                                  name="run-circle"
+                                  style={[styles.icon, styles.step]}
+                                />
+                              </View>
+                              <Text style={styles.stat__name}>Steps</Text>
+                            </View>
+                            {/* STAT NUMBER */}
+                            <View style={styles.item__number}>
+                              <Text style={styles.number}>{steps}</Text>
+                              <Text style={styles.unit}>steps</Text>
+                            </View>
+                          </View>
+                        </View>
+                        {/* ITEM - DISTANCE */}
+                        <View style={[styles.stat__item, styles.break]}>
+                          {/* STAT ITEM CONTENT */}
+                          <View style={[styles.stat__item_content]}>
+                            {/* HEAD ITEM */}
+                            <View style={styles.item__head}>
+                              <View
+                                style={[
+                                  styles.stat__icon,
+                                  styles.distance__blur,
+                                ]}>
+                                <Icon
+                                  name="directions-walk"
+                                  style={[styles.icon, styles.distance]}
+                                />
+                              </View>
+                              <Text style={styles.stat__name}>Distance</Text>
+                            </View>
+                            {/* STAT NUMBER */}
+                            <View style={styles.item__number}>
+                              <Text style={styles.number}>{distance}</Text>
+                              <Text style={styles.unit}>km</Text>
+                            </View>
+                          </View>
+                        </View>
+                        {/* ITEM - JUMP */}
+                        <View style={[styles.stat__item, styles.break]}>
+                          {/* STAT ITEM CONTENT */}
+                          <View style={[styles.stat__item_content]}>
+                            {/* HEAD ITEM */}
+                            <View style={styles.item__head}>
+                              <View
+                                style={[styles.stat__icon, styles.jump__blur]}>
+                                <Icon
+                                  name="arrow-upward"
+                                  style={[styles.icon, styles.jump]}
+                                />
+                              </View>
+                              <Text style={styles.stat__name}>Jump</Text>
+                            </View>
+                            {/* STAT NUMBER */}
+                            <View style={styles.item__number}>
+                              <Text style={styles.number}>{steps}</Text>
+                              <Text style={styles.unit}>jumps</Text>
+                            </View>
+                          </View>
+                        </View>
+                      </View>
+                    </View>
+                    {/* ITEM - HEATMAP */}
+                    <View style={[styles.stat__item]}>
+                      {/* STAT ITEM CONTENT */}
+                      <View style={[styles.stat__item_content]}>
+                        {/* HEAD ITEM */}
+                        <View style={styles.item__head}>
+                          <View
+                            style={[styles.stat__icon, styles.heatmap__blur]}>
+                            <Icon
+                              name="location-on"
+                              style={[styles.icon, styles.heatmap]}
+                            />
+                          </View>
+                          <Text style={styles.stat__name}>Heat map</Text>
+                        </View>
+                        {/* MAP */}
+                        <View style={styles.map__container}>
+                          <View style={styles.map__disable}></View>
+                          <MapView
+                            style={styles.map}
+                            initialRegion={{
+                              // latitude: latitude, // Set the initial latitude of the map
+                              // longitude: longitude, // Set the initial longitude of the map
+                              latitude: 10.792353, // Set the initial latitude of the map ,
+                              longitude: 106.703467, // Set the initial longitude of the map
+                              latitudeDelta: 0.0005, // Adjust the delta values as needed to zoom in/out
+                              longitudeDelta: 0.0005,
+                            }}
+                            mapType="satellite" // Change the map style to satellite
+                          >
+                            <Heatmap
+                              points={heatmapCoordinates}
+                              radius={10} // Adjust the radius of each heatmap point
+                              opacity={0.8} // Adjust the opacity of the heatmap
+                            />
+                          </MapView>
+                        </View>
+                      </View>
+                    </View>
+                    {/* ITEM-RUN */}
+                    <View style={styles.stat__item}>
+                      {/* STAT ITEM CONTENT */}
+                      <View style={[styles.stat__item_content]}>
+                        {/* HEAD ITEM */}
+                        <View style={styles.item__head}>
+                          <View style={[styles.stat__icon, styles.speed__blur]}>
+                            <Icon
+                              name="directions-run"
+                              style={[styles.icon, styles.speed]}
+                            />
+                          </View>
+                          <Text style={styles.stat__name}>Speed</Text>
+                        </View>
+                        {/* STAT NUMBER */}
+                        <View style={[styles.item__number, styles.multi]}>
+                          <View style={styles.item}>
+                            <Text style={styles.number}>{steps}</Text>
+                            <Text style={styles.unit}>m/s</Text>
+                          </View>
+                          <View style={styles.line}></View>
+                          <View style={styles.item}>
+                            <Text style={styles.number}>{steps}</Text>
+                            <Text style={styles.unit}>AVG m/s</Text>
+                          </View>
+                          <View style={styles.line}></View>
+                          <View style={styles.item}>
+                            <Text style={styles.number}>{steps}</Text>
+                            <Text style={styles.unit}>MAX m/s</Text>
+                          </View>
+                        </View>
+                      </View>
+                    </View>
+                    {/* ITEM-RUN ACCELERATION*/}
+                    <View style={styles.stat__item}>
+                      {/* STAT ITEM CONTENT */}
+                      <View style={[styles.stat__item_content]}>
+                        {/* HEAD ITEM */}
+                        <View style={styles.item__head}>
+                          <View
+                            style={[
+                              styles.stat__icon,
+                              styles.speed_accecleration__blur,
+                            ]}>
+                            <Icon
+                              name="call-made"
+                              style={[styles.icon, styles.speed_accecleration]}
+                            />
+                          </View>
+                          <Text style={styles.stat__name}>
+                            Speed Acceleration
+                          </Text>
+                        </View>
+                        {/* STAT NUMBER */}
+                        <View style={[styles.item__number, styles.multi]}>
+                          <View style={styles.item}>
+                            <Text style={styles.number}>{steps}</Text>
+                            <Text style={styles.unit}>m/s</Text>
+                          </View>
+                          <View style={styles.line}></View>
+                          <View style={styles.item}>
+                            <Text style={styles.number}>{steps}</Text>
+                            <Text style={styles.unit}>AVG m/s</Text>
+                          </View>
+                          <View style={styles.line}></View>
+                          <View style={styles.item}>
+                            <Text style={styles.number}>{steps}</Text>
+                            <Text style={styles.unit}>MAX m/s</Text>
+                          </View>
+                        </View>
+                      </View>
+                    </View>
+                  </View>
+                  <Text>longitude:{longitude}</Text>
+                  <Text>latitude:{latitude}</Text>
+                  {/* BUTTON SAVE OR RESET */}
+                  {/* <TouchableOpacity
+                  style={styles.save__btn_container}
+                  onPress={handleSave}>
+                  <View style={styles.save__btn}>
+                    <Text style={styles.save__btn_text}>save your data</Text>
+                  </View>
+                </TouchableOpacity> */}
+                  <TouchableOpacity
+                    style={styles.save__btn_container}
+                    onPress={handleDisconnect}>
+                    <View style={styles.save__btn}>
+                      <Text style={styles.save__btn_text}>disconnect</Text>
+                    </View>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </ScrollView>
           </View>
         ) : (
-          <Text style={styles.heartRateTitleText}>
-            Please connect to an IOT device
-          </Text>
-        )}
-        {/* 
-        {allDevices.map((device, index) => (
-          <View key={index}>
-            <TouchableOpacity
-              onPress={connectAndCloseModal}
-              style={modalStyle.ctaButton}>
-              <Text style={modalStyle.ctaButtonText}>{item.item.name}</Text>
-            </TouchableOpacity>
+          <View style={styles.container}>
+            <Image source={welcomeBG} style={styles.welcome__bg} />
+            <View style={styles.content}>
+              <View style={styles.welcome__container}>
+                <Animated.View style={[styles.welcome__time]}>
+                  <Text style={[styles.time__welcome, styles.highlight]}>
+                    {timeString}
+                  </Text>
+                  <Text style={styles.time__welcome}>{period}</Text>
+                </Animated.View>
+                <View style={styles.welcome__logo}>
+                  <Image source={Logo} style={styles.logo__image} />
+                  <Text style={styles.logo__name}>smart coach</Text>
+                </View>
+                <View style={styles.welcome__scan}>
+                  <Text style={styles.scan__text}>Scan your device</Text>
+                  <TouchableOpacity
+                    style={styles.scan__box}
+                    onPress={openModal}>
+                    <Icon name="chevron-right" style={styles.scan__icon} />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
           </View>
-        ))} */}
+        )}
       </View>
-      <TouchableOpacity onPress={openModal} style={styles.ctaButton}>
-        <Text style={styles.ctaButtonText}>{'Connect'}</Text>
-      </TouchableOpacity>
       <DeviceModal
         closeModal={hideModal}
         visible={isModalVisible}
         connectToPeripheral={connectToDevice}
         devices={allDevices}
       />
-    </SafeAreaView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    // flex: 1,
+    position: 'relative',
+    width: '100%',
     height: '100%',
-    backgroundColor: '#fff',
   },
-  heartRateTitleWrapper: {
-    flex: 1,
-    justifyContent: 'center',
+  welcome__bg: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+
+    // resizeMode: 'cover',
+  },
+  welcome__container: {
+    position: 'relative',
+    padding: 20,
+    // backgroundColor: 'red',
+    width: '100%',
+    height: '100%',
     alignItems: 'center',
-    backgroundColor: '#FFF',
+    justifyContent: 'center',
   },
-  heartRateTitleText: {
+  welcome__time: {
+    position: 'absolute',
+    top: 30,
+    left: 0,
+    backgroundColor: '#E79C25',
+    padding: 15,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    opacity: 0.95,
+  },
+  time__welcome: {
+    fontSize: 15,
+    color: '#FFF',
+  },
+  highlight: {
+    fontWeight: 700,
+    fontSize: 20,
+  },
+  welcome__logo: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  logo__image: {
+    width: 200,
+    height: 200,
+    resizeMode: 'cover',
+  },
+  logo__name: {
+    textTransform: 'uppercase',
+    fontWeight: 600,
     fontSize: 30,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginHorizontal: 20,
-    color: 'black',
+    color: '#FFF',
   },
-  heartRateText: {
+  welcome__scan: {
+    position: 'absolute',
+    bottom: 30,
+    right: 0,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 20,
+  },
+  scan__text: {
+    fontSize: 20,
+    color: '#FFF',
+  },
+  scan__box: {
+    width: 50,
+    height: 50,
+    borderRadius: 50 / 2,
+    backgroundColor: '#E79C25',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  scan__icon: {
+    fontSize: 30,
+  },
+
+  //STATS STYLE --------------------------------------------------------------------------------
+  background: {
+    position: 'absolute',
+    zIndex: -1,
+  },
+  content: {
+    padding: 15,
+    // backgroundColor: 'teal',
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingBottom: 20,
+    padding: 15,
+  },
+  header__text: {
     fontSize: 25,
-    marginTop: 15,
+    fontWeight: 900,
+    color: '#FFF',
   },
-  ctaButton: {
-    backgroundColor: 'purple',
+  battery__container: {
+    position: 'relative',
+    width: 38,
+    height: 38,
+    borderRadius: 38 / 2,
+    borderWidth: 1,
+    borderColor: '#E79C25',
+    overflow: 'hidden',
+    // alignItems: 'center',
+    // justifyContent: 'center',
+  },
+  battery: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     justifyContent: 'center',
     alignItems: 'center',
-    height: 50,
-    marginHorizontal: 20,
-    marginBottom: 5,
-    borderRadius: 8,
   },
-  ctaButtonText: {
+  batter__status: {
+    fontSize: 12,
+    color: '#FFF',
+    fontWeight: 600,
+  },
+  stat__container: {
+    width: '100%',
+    height: '100%',
+    marginTop: 5,
+    paddingHorizontal: 10,
+    paddingBottom: 50, //clear after done
+  },
+  stat__list: {
+    gap: 20,
+  },
+  vertical__list: {
+    flexDirection: 'row',
+    // alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  stat__box: {
+    width: '47%',
+    justifyContent: 'space-between',
+  },
+  stat__item: {
+    width: '100%',
+    marginTop: 10,
+  },
+  stat__item_content: {
+    width: '100%',
+    backgroundColor: '#15212D',
+    padding: 10,
+    borderRadius: 15,
+    shadowColor: '#EFE8E8',
+    shadowOffset: {
+      width: 0,
+      height: 7,
+    },
+    shadowOpacity: 0.5,
+    shadowRadius: 7.68,
+    elevation: 12,
+  },
+  item__head: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  stat__icon: {
+    width: 35,
+    height: 35,
+    borderRadius: 35 / 2,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  icon: {fontSize: 20},
+  time__blur: {
+    backgroundColor: '#4F4722',
+  },
+  time: {
+    color: '#FFB800',
+  },
+  distance__blur: {
+    backgroundColor: '#243352',
+  },
+  distance: {
+    color: '#627CE6',
+  },
+  sprint__blur: {
+    backgroundColor: '#113C24',
+  },
+  sprint: {
+    color: '#03A900',
+  },
+  calories__blur: {
+    backgroundColor: '#443024',
+  },
+  calories: {
+    color: '#FF6B00',
+  },
+  step__blur: {
+    backgroundColor: '#412F39',
+  },
+  step: {
+    fontSize: 25,
+    color: '#F16767',
+  },
+  jump__blur: {
+    backgroundColor: '#4B333C',
+  },
+  jump: {
+    color: '#F44336',
+  },
+  heatmap__blur: {
+    backgroundColor: '#4D292F',
+  },
+  heatmap: {
+    color: '#F44336',
+  },
+  stat__name: {
     fontSize: 18,
-    fontWeight: 'bold',
-    color: 'white',
+    color: '#FFF',
+    fontWeight: 600,
+    marginLeft: 10,
   },
-  device_name: {
-    color: '#000',
+  stat__jump: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 10,
+  },
+  jump__image: {
+    width: 60,
+    height: 95,
+    resizeMode: 'cover',
+  },
+  item__number: {
+    alignItems: 'center',
+    paddingVertical: 10,
+  },
+  number: {
+    fontSize: 30,
+    color: '#FFF',
+    fontWeight: 700,
+  },
+  bottom__name: {
+    textAlign: 'center',
+    fontSize: 15,
+    color: '#FFF',
+    fontWeight: 700,
+  },
+  unit: {
+    marginTop: 10,
+    color: '#FFF',
+    fontWeight: 600,
+  },
+  congrate: {
+    fontSize: 13,
+    marginTop: 10,
+    color: '#43A047',
+    textAlign: 'center',
+  },
+  map__container: {
+    position: 'relative',
+    marginTop: 20,
+    paddingBottom: 10,
+  },
+  map__disable: {
+    position: 'absolute',
+    width: '100%',
+    height: 250,
+    backgroundColor: 'transparent',
+    zIndex: 1,
+  },
+  map: {
+    width: '100%',
+    height: 250,
+  },
+  speed__blur: {
+    backgroundColor: '#4F2E2A',
+  },
+  speed: {
+    color: '#FF5722',
+  },
+  multi: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    marginTop: 10,
+    paddingVertical: 20,
+  },
+  item: {
+    alignItems: 'center',
+    width: '31%',
+  },
+  speed_accecleration__blur: {
+    backgroundColor: '#103945',
+  },
+  speed_accecleration: {
+    color: '#00ACC1',
+  },
+  line: {
+    height: '50%',
+    width: 1,
+    backgroundColor: '#616161',
+  },
+  save__btn_container: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 30,
+  },
+  save__btn: {
+    backgroundColor: '#E79C25',
+    paddingHorizontal: 10,
+    paddingVertical: 15,
+    alignItems: 'center',
+    borderRadius: 5,
+    width: '70%',
+  },
+  save__btn_text: {
+    color: '#FFF',
+    textTransform: 'uppercase',
+    fontWeight: 600,
+    fontSize: 17,
   },
 });
 
-export default App;
+export default BLE;
