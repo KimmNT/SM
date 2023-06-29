@@ -148,7 +148,10 @@ const BLE = ({
             <Image source={BackGround} style={styles.background} />
             {/* HEADER */}
             <View style={styles.header}>
-              <Text style={styles.header__text}>Dashboard</Text>
+              <View>
+                <Text style={styles.header__text}>Dashboard</Text>
+                <Text style={styles.device__id}>{id}</Text>
+              </View>
               <View style={styles.battery__container}>
                 <View
                   style={{
@@ -494,8 +497,8 @@ const BLE = ({
                       </View>
                     </View>
                   </View>
-                  <Text>longitude:{longitude}</Text>
-                  <Text>latitude:{latitude}</Text>
+                  {/* <Text>longitude:{longitude}</Text>
+                  <Text>latitude:{latitude}</Text> */}
                   {/* BUTTON SAVE OR RESET */}
                   {/* <TouchableOpacity
                   style={styles.save__btn_container}
@@ -652,6 +655,11 @@ const styles = StyleSheet.create({
   header__text: {
     fontSize: 25,
     fontWeight: 900,
+    color: '#FFF',
+  },
+  device__id: {
+    fontSize: 15,
+    marginTop: 10,
     color: '#FFF',
   },
   battery__container: {

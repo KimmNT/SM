@@ -7,34 +7,17 @@ import {
   View,
   TouchableOpacity,
   Text,
+  Alert,
 } from 'react-native';
 import QRCodeScanner from 'react-native-qrcode-scanner';
 import ScanArea from './ScanArea';
 
-// const DeviceModalListItem = props => {
-//   const {item, connectToPeripheral, closeModal} = props;
-
-//   const connectAndCloseModal = useCallback(() => {
-//     connectToPeripheral(item.item);
-//     closeModal();
-//   }, [connectToPeripheral, closeModal, item.item]);
-
-//   return (
-//     <TouchableOpacity
-//       style={styles.save__btn_container}
-//       onPress={connectAndCloseModal}>
-//       <View style={styles.save__btn}>
-//         <Text style={styles.save__btn_text}>connect</Text>
-//       </View>
-//     </TouchableOpacity>
-//   );
-// };
-
 const DeviceModal = props => {
   const {devices, visible, connectToPeripheral, closeModal} = props;
   const [qrcode, setQRCode] = useState('');
+  const [showMismatchAlert, setShowMismatchAlert] = useState(false);
+  const [scanned, setScanned] = useState(false); // Add a state variable to track if QR code is scanned
 
-  //clear qrcode value after 30s
   useEffect(() => {
     const timeout = setTimeout(() => {
       setQRCode('');
@@ -45,20 +28,28 @@ const DeviceModal = props => {
 
   const renderDeviceModalListItem = useCallback(
     item => {
-      if (item.item.id === qrcode) {
-        // return (
-        //   <DeviceModalListItem
-        //     item={item}
-        //     connectToPeripheral={connectToPeripheral}
-        //     closeModal={closeModal}
-        //   />
-        // );
+      if (scanned && item.item.id === qrcode) {
+        // Check if QR code is scanned and ID matches
         connectToPeripheral(item.item);
         closeModal();
-      } else return null;
+      } else if (scanned) {
+        // If QR code is scanned but ID doesn't match, show alert
+        setShowMismatchAlert(true);
+      }
     },
-    [closeModal, connectToPeripheral, qrcode],
+    [closeModal, connectToPeripheral, qrcode, scanned],
   );
+
+  const handleQRCodeScanned = useCallback(({data}) => {
+    setQRCode(data);
+    setScanned(true); // Set the flag to indicate QR code is scanned
+  }, []);
+
+  const handleAlertDismiss = useCallback(() => {
+    setShowMismatchAlert(false);
+    setScanned(false); // Reset the scanned flag
+    setQRCode(''); // Reset the QR code value
+  }, []);
 
   return (
     <Modal
@@ -68,7 +59,7 @@ const DeviceModal = props => {
       visible={visible}>
       <SafeAreaView style={styles.modalTitle}>
         <QRCodeScanner
-          onRead={({data}) => setQRCode(data)}
+          onRead={handleQRCodeScanned}
           reactivate={true}
           reactivateTimeout={2000}
           fadeIn={true}
@@ -78,9 +69,6 @@ const DeviceModal = props => {
               <ScanArea />
             </View>
           }
-          // cameraStyle={{
-          //   height: 500,
-          // }}
           cameraStyle={{
             height: 800,
           }}
@@ -90,8 +78,17 @@ const DeviceModal = props => {
           data={devices}
           renderItem={renderDeviceModalListItem}
         />
-        {/* {console.log(devices)} */}
       </SafeAreaView>
+
+      {/* Alert */}
+      {showMismatchAlert && scanned && (
+        <View style={styles.alertContainer}>
+          <Text style={styles.alertText}>Device Is Not Avaiable!</Text>
+          <TouchableOpacity onPress={handleAlertDismiss}>
+            <Text style={styles.dismissText}>scan again</Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </Modal>
   );
 };
@@ -124,6 +121,32 @@ const styles = StyleSheet.create({
     textTransform: 'uppercase',
     fontWeight: 600,
     fontSize: 17,
+  },
+
+  // Alert styles
+  alertContainer: {
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  alertText: {
+    color: '#FFF',
+    fontSize: 20,
+    marginBottom: 20,
+  },
+  dismissText: {
+    color: '#FFF',
+    fontSize: 16,
+    textTransform: 'uppercase',
+    backgroundColor: '#E79C25',
+    paddingHorizontal: 30,
+    paddingVertical: 15,
+    borderRadius: 5,
   },
 });
 

@@ -14,7 +14,7 @@ const bleManager = new BleManager();
 function useBLE() {
   const [allDevices, setAllDevices] = useState([]);
   const [connectedDevice, setConnectedDevice] = useState(null);
-  const [data, setData] = useState('Start with empty string');
+  const [data, setData] = useState('Device ID');
 
   const requestPermissions = async cb => {
     if (Platform.OS === 'android') {
