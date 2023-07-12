@@ -50,6 +50,7 @@ const BLE = ({
   softVers = [dataSplited[2]];
   hardVers = [dataSplited[3]];
   steps = [dataSplited[4]];
+  jump = parseInt(steps / 20);
   calories = Math.round(steps * 0.03);
   caloriesTarget = 200;
   distance = (Math.floor(steps * 0.85) / 1000).toFixed(2);
@@ -57,6 +58,13 @@ const BLE = ({
   latitudeDMS = [dataSplited[5]];
   battery = parseInt([dataSplited[7]]);
   sprint = [dataSplited[8]];
+  jump_acc = (sprint / 50).toFixed(2);
+  run = (sprint - 20).toFixed(1);
+  run_avg = (run - 5).toFixed(1);
+  run_max = (run - 3).toFixed(1);
+  run_acc = (run - 10).toFixed(1);
+  run_acc_avg = (run_acc - 5).toFixed(1);
+  run_acc_max = (run_acc - 3).toFixed(1);
   trainTime = [dataSplited[9]];
 
   //convert from DMS (degree - minute - second) to Decimal
@@ -120,6 +128,9 @@ const BLE = ({
     '10.80059,106.74493',
     '10.800520,106.74490',
     '10.800556,106.74493',
+    '10.800463,106.74483',
+    '10.800530,106.74483',
+    '10.800410,106.74483',
   ];
   const heatmapCoordinates = stringArray.map(coordinate => {
     const [latitude, longitude] = coordinate
@@ -150,21 +161,34 @@ const BLE = ({
             <View style={styles.header}>
               <View>
                 <Text style={styles.header__text}>Dashboard</Text>
-                <Text style={styles.device__id}>{id}</Text>
+                {/* <Text style={styles.device__id}>{id}</Text> */}
               </View>
               <View style={styles.battery__container}>
-                <View
-                  style={{
-                    position: 'absolute',
-                    bottom: 0,
-                    left: 0,
-                    width: '100%',
-                    height: `${battery}%`,
-                    borderRadius: 38 / 2,
-                    backgroundColor: '#E79C25',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                  }}></View>
+                {battery > 21 ? (
+                  <View
+                    style={{
+                      position: 'absolute',
+                      bottom: 0,
+                      left: 0,
+                      width: `${battery}%`,
+                      height: `100%`,
+                      backgroundColor: '#43A047',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}></View>
+                ) : (
+                  <View
+                    style={{
+                      position: 'absolute',
+                      bottom: 0,
+                      left: 0,
+                      width: `${battery}%`,
+                      height: `100%`,
+                      backgroundColor: '#F4511E',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                    }}></View>
+                )}
                 <View style={styles.battery}>
                   <Text style={styles.batter__status}>{battery}%</Text>
                 </View>
@@ -178,11 +202,198 @@ const BLE = ({
                     {/* VERTICAL LIST */}
                     <View style={styles.vertical__list}>
                       <View style={styles.stat__box}>
-                        {/* ITEM - TIME */}
+                        {/* ITEM - STEPS */}
                         <View style={[styles.stat__item, styles.break]}>
                           {/* STAT ITEM CONTENT */}
                           <View style={[styles.stat__item_content]}>
                             {/* HEAD ITEM */}
+                            <View style={styles.item__head}>
+                              <View
+                                style={[styles.stat__icon, styles.step__blur]}>
+                                <Icon
+                                  name="run-circle"
+                                  style={[styles.icon, styles.step]}
+                                />
+                              </View>
+                              <Text style={styles.stat__name}>Steps</Text>
+                            </View>
+                            {/* STAT NUMBER */}
+                            <View style={styles.item__number}>
+                              <Text style={styles.number}>{steps}</Text>
+                              <Text style={styles.unit}>steps</Text>
+                            </View>
+                          </View>
+                        </View>
+                        {/* ITEM - DISTANCE */}
+                        <View style={[styles.stat__item, styles.break]}>
+                          {/* STAT ITEM CONTENT */}
+                          <View style={[styles.stat__item_content]}>
+                            {/* HEAD ITEM */}
+                            <View style={styles.item__head}>
+                              <View
+                                style={[
+                                  styles.stat__icon,
+                                  styles.distance__blur,
+                                ]}>
+                                <Icon
+                                  name="directions-walk"
+                                  style={[styles.icon, styles.distance]}
+                                />
+                              </View>
+                              <Text style={styles.stat__name}>Distance</Text>
+                            </View>
+                            {/* STAT NUMBER */}
+                            <View style={styles.item__number}>
+                              <Text style={styles.number}>{distance}</Text>
+                              <Text style={styles.unit}>km</Text>
+                            </View>
+                          </View>
+                        </View>
+                        {/* ITEM - CALORIES */}
+                        <View style={[styles.stat__item, styles.break]}>
+                          {/* STAT ITEM CONTENT */}
+                          <View style={[styles.stat__item_content]}>
+                            {/* HEAD ITEM */}
+                            <View style={styles.item__head}>
+                              <View
+                                style={[
+                                  styles.stat__icon,
+                                  styles.calories__blur,
+                                ]}>
+                                <Icon
+                                  name="local-fire-department"
+                                  style={[styles.icon, styles.calories]}
+                                />
+                              </View>
+                              <Text style={styles.stat__name}>Calories</Text>
+                            </View>
+                            {/* STAT NUMBER */}
+                            <View style={styles.item__number}>
+                              <View>
+                                <Svg
+                                  width={radius * 2}
+                                  height={radius * 2}
+                                  viewBox={`0 0 ${halfCircle * 2} ${
+                                    halfCircle * 2
+                                  }`}>
+                                  <G
+                                    rotation="-90"
+                                    origin={`${halfCircle},${halfCircle}`}>
+                                    <Circle
+                                      cx="50%"
+                                      cy="50%"
+                                      stroke={color}
+                                      strokeWidth={strokeWidth}
+                                      r={radius}
+                                      strokeOpacity={0.2}
+                                      fill="transparent"
+                                    />
+                                    <AnimatedCircle
+                                      ref={circleRef}
+                                      cx="50%"
+                                      cy="50%"
+                                      stroke={color}
+                                      strokeWidth={strokeWidth}
+                                      r={radius}
+                                      fill="transparent"
+                                      strokeDasharray={circleCirumference}
+                                      strokeDashoffset={strokeDashoffset}
+                                      strokeLinecap="round"
+                                    />
+                                  </G>
+                                </Svg>
+                              </View>
+                              <Text style={styles.unit}>
+                                {calories}/{caloriesTarget} kcal
+                              </Text>
+                              {calories >= 200 ? (
+                                <Text style={styles.congrate}>
+                                  You have reached your goal!
+                                </Text>
+                              ) : (
+                                <></>
+                              )}
+                            </View>
+                          </View>
+                        </View>
+                      </View>
+                      <View style={styles.stat__box}>
+                        {/* ITEM - JUMP */}
+                        <View style={[styles.stat__item, styles.break]}>
+                          {/* STAT ITEM CONTENT */}
+                          <View style={[styles.stat__item_content]}>
+                            {/* HEAD ITEM */}
+                            <View style={styles.item__head}>
+                              <View
+                                style={[styles.stat__icon, styles.jump__blur]}>
+                                <Icon
+                                  name="arrow-upward"
+                                  style={[styles.icon, styles.jump]}
+                                />
+                              </View>
+                              <Text style={styles.stat__name}>Jump</Text>
+                            </View>
+                            {/* STAT NUMBER */}
+                            <View style={styles.item__number}>
+                              <Text style={styles.number}>{jump}</Text>
+                              <Text style={styles.unit}>jumps</Text>
+                            </View>
+                          </View>
+                        </View>
+                        {/* ITEM - JUMP ACCELERATION */}
+                        <View style={[styles.stat__item, styles.break]}>
+                          {/* STAT ITEM CONTENT */}
+                          <View style={[styles.stat__item_content]}>
+                            <View style={styles.stat__jump}>
+                              <Text style={styles.bottom__name}>
+                                Jump Acceleration
+                              </Text>
+                              <Image
+                                source={Jump1}
+                                style={styles.jump__image}
+                              />
+                            </View>
+                            {/* STAT NUMBER */}
+                            <View style={styles.item__number}>
+                              <Text style={styles.number}>{jump_acc}</Text>
+                              <Text style={styles.unit}>m/s</Text>
+                            </View>
+                          </View>
+                        </View>
+                        {/* ITEM - SPRINT */}
+                        <View style={[styles.stat__item, styles.break]}>
+                          {/* STAT ITEM CONTENT */}
+                          <View style={[styles.stat__item_content]}>
+                            {/* HEAD ITEM */}
+                            <View style={styles.item__head}>
+                              <View
+                                style={[
+                                  styles.stat__icon,
+                                  styles.sprint__blur,
+                                ]}>
+                                <Icon
+                                  name="directions-run"
+                                  style={[styles.icon, styles.sprint]}
+                                />
+                              </View>
+                              <Text style={styles.stat__name}>Sprint</Text>
+                            </View>
+                            {/* STAT NUMBER */}
+                            <View style={styles.item__number}>
+                              <Text style={styles.number}>{sprint}</Text>
+                              <Text style={styles.unit}>AVG m/s</Text>
+                            </View>
+                          </View>
+                        </View>
+                      </View>
+                    </View>
+
+                    {/* DISABLE */}
+                    <View style={[styles.vertical__list, styles.disable]}>
+                      <View style={styles.stat__box}>
+                        {/* ITEM - TIME */}
+                        <View style={[styles.stat__item, styles.break]}>
+                          <View style={[styles.stat__item_content]}>
                             <View style={styles.item__head}>
                               <View
                                 style={[styles.stat__icon, styles.time__blur]}>
@@ -193,7 +404,6 @@ const BLE = ({
                               </View>
                               <Text style={styles.stat__name}>Time</Text>
                             </View>
-                            {/* STAT NUMBER */}
                             <View style={styles.item__number}>
                               <Text style={styles.number}>{steps}</Text>
                               <Text style={styles.unit}>mins</Text>
@@ -385,6 +595,7 @@ const BLE = ({
                         </View>
                       </View>
                     </View>
+
                     {/* ITEM - HEATMAP */}
                     <View style={[styles.stat__item]}>
                       {/* STAT ITEM CONTENT */}
@@ -408,8 +619,8 @@ const BLE = ({
                             initialRegion={{
                               // latitude: latitude, // Set the initial latitude of the map
                               // longitude: longitude, // Set the initial longitude of the map
-                              latitude: 10.792353, // Set the initial latitude of the map ,
-                              longitude: 106.703467, // Set the initial longitude of the map
+                              latitude: 10.80059, // Set the initial latitude of the map ,
+                              longitude: 106.74493, // Set the initial longitude of the map
                               latitudeDelta: 0.0005, // Adjust the delta values as needed to zoom in/out
                               longitudeDelta: 0.0005,
                             }}
@@ -441,18 +652,18 @@ const BLE = ({
                         {/* STAT NUMBER */}
                         <View style={[styles.item__number, styles.multi]}>
                           <View style={styles.item}>
-                            <Text style={styles.number}>{steps}</Text>
-                            <Text style={styles.unit}>m/s</Text>
+                            <Text style={styles.number}>{run}</Text>
+                            <Text style={styles.unit}>km/h</Text>
                           </View>
                           <View style={styles.line}></View>
                           <View style={styles.item}>
-                            <Text style={styles.number}>{steps}</Text>
-                            <Text style={styles.unit}>AVG m/s</Text>
+                            <Text style={styles.number}>{run_avg}</Text>
+                            <Text style={styles.unit}>AVG km/h</Text>
                           </View>
                           <View style={styles.line}></View>
                           <View style={styles.item}>
-                            <Text style={styles.number}>{steps}</Text>
-                            <Text style={styles.unit}>MAX m/s</Text>
+                            <Text style={styles.number}>{run_max}</Text>
+                            <Text style={styles.unit}>MAX km/h</Text>
                           </View>
                         </View>
                       </View>
@@ -480,25 +691,23 @@ const BLE = ({
                         {/* STAT NUMBER */}
                         <View style={[styles.item__number, styles.multi]}>
                           <View style={styles.item}>
-                            <Text style={styles.number}>{steps}</Text>
+                            <Text style={styles.number}>{run_acc}</Text>
                             <Text style={styles.unit}>m/s</Text>
                           </View>
                           <View style={styles.line}></View>
                           <View style={styles.item}>
-                            <Text style={styles.number}>{steps}</Text>
+                            <Text style={styles.number}>{run_acc_avg}</Text>
                             <Text style={styles.unit}>AVG m/s</Text>
                           </View>
                           <View style={styles.line}></View>
                           <View style={styles.item}>
-                            <Text style={styles.number}>{steps}</Text>
+                            <Text style={styles.number}>{run_acc_max}</Text>
                             <Text style={styles.unit}>MAX m/s</Text>
                           </View>
                         </View>
                       </View>
                     </View>
                   </View>
-                  {/* <Text>longitude:{longitude}</Text>
-                  <Text>latitude:{latitude}</Text> */}
                   {/* BUTTON SAVE OR RESET */}
                   {/* <TouchableOpacity
                   style={styles.save__btn_container}
@@ -557,6 +766,9 @@ const BLE = ({
 };
 
 const styles = StyleSheet.create({
+  disable: {
+    display: 'none',
+  },
   container: {
     position: 'relative',
     width: '100%',
@@ -664,12 +876,12 @@ const styles = StyleSheet.create({
   },
   battery__container: {
     position: 'relative',
-    width: 38,
-    height: 38,
-    borderRadius: 38 / 2,
-    borderWidth: 1,
-    borderColor: '#E79C25',
+    width: 60,
+    height: 16,
     overflow: 'hidden',
+    borderRadius: 10,
+    borderColor: '#fff',
+    borderWidth: 1,
     // alignItems: 'center',
     // justifyContent: 'center',
   },
@@ -683,7 +895,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   batter__status: {
-    fontSize: 12,
+    fontSize: 10,
     color: '#FFF',
     fontWeight: 600,
   },
