@@ -6,8 +6,11 @@ import {
   ScrollView,
   Animated,
   TouchableOpacity,
+  Dimensions,
 } from 'react-native';
 import React, {useEffect} from 'react';
+
+const res = Dimensions.get('window').height;
 
 //IMAGE
 import welcomeBG from '../../assets/images/welcome_bg.png';
@@ -65,7 +68,7 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   content: {
-    padding: 20,
+    padding: height * 0.02,
   },
   welcome__bg: {
     position: 'absolute',

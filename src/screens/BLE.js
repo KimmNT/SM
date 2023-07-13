@@ -8,11 +8,14 @@ import {
   Animated,
   ScrollView,
   Alert,
+  Dimensions,
 } from 'react-native';
 import DeviceModal from './components/DeviceConnectionModal';
 import useBLE from '../../useBLE';
 import Svg, {G, Circle} from 'react-native-svg';
 import MapView, {Heatmap} from 'react-native-maps';
+
+const res = Dimensions.get('window').height;
 
 //IMAGE
 import welcomeBG from '../../assets/images/welcome_bg.png';
@@ -50,7 +53,7 @@ const BLE = ({
   softVers = [dataSplited[2]];
   hardVers = [dataSplited[3]];
   steps = [dataSplited[4]];
-  jump = parseInt(steps / 20);
+  jump = parseInt(steps * 0.3);
   calories = Math.round(steps * 0.03);
   caloriesTarget = 200;
   distance = (Math.floor(steps * 0.85) / 1000).toFixed(2);
@@ -59,12 +62,12 @@ const BLE = ({
   battery = parseInt([dataSplited[7]]);
   sprint = [dataSplited[8]];
   jump_acc = (sprint / 50).toFixed(2);
-  run = (sprint - 20).toFixed(1);
-  run_avg = (run - 5).toFixed(1);
-  run_max = (run - 3).toFixed(1);
-  run_acc = (run - 10).toFixed(1);
-  run_acc_avg = (run_acc - 5).toFixed(1);
-  run_acc_max = (run_acc - 3).toFixed(1);
+  run = (sprint * 0.3).toFixed(1);
+  run_avg = (run * 0.5).toFixed(1);
+  run_max = (run * 0.7).toFixed(1);
+  run_acc = (run / 10).toFixed(1);
+  run_acc_avg = (run_acc * 0.5).toFixed(1);
+  run_acc_max = (run_acc * 0.7).toFixed(1);
   trainTime = [dataSplited[9]];
 
   //convert from DMS (degree - minute - second) to Decimal
@@ -130,7 +133,7 @@ const BLE = ({
     '10.800556,106.74493',
     '10.800463,106.74483',
     '10.800530,106.74483',
-    '10.800410,106.74483',
+    '10.800430,106.74483',
   ];
   const heatmapCoordinates = stringArray.map(coordinate => {
     const [latitude, longitude] = coordinate
@@ -161,7 +164,7 @@ const BLE = ({
             <View style={styles.header}>
               <View>
                 <Text style={styles.header__text}>Dashboard</Text>
-                {/* <Text style={styles.device__id}>{id}</Text> */}
+                <Text style={styles.device__id}>{id}</Text>
               </View>
               <View style={styles.battery__container}>
                 {battery > 21 ? (
@@ -191,6 +194,9 @@ const BLE = ({
                 )}
                 <View style={styles.battery}>
                   <Text style={styles.batter__status}>{battery}%</Text>
+                </View>
+                <View style={styles.battery__head_container}>
+                  <View style={styles.battery__head}></View>
                 </View>
               </View>
             </View>
@@ -318,6 +324,26 @@ const BLE = ({
                         </View>
                       </View>
                       <View style={styles.stat__box}>
+                        {/* ITEM - JUMP ACCELERATION */}
+                        <View style={[styles.stat__item, styles.break]}>
+                          {/* STAT ITEM CONTENT */}
+                          <View style={[styles.stat__item_content]}>
+                            <View style={styles.stat__jump}>
+                              <Text style={styles.bottom__name}>
+                                Jump Acceleration
+                              </Text>
+                              <Image
+                                source={Jump1}
+                                style={styles.jump__image}
+                              />
+                            </View>
+                            {/* STAT NUMBER */}
+                            <View style={styles.item__number}>
+                              <Text style={styles.number}>{jump_acc}</Text>
+                              <Text style={styles.unit}>m/s</Text>
+                            </View>
+                          </View>
+                        </View>
                         {/* ITEM - JUMP */}
                         <View style={[styles.stat__item, styles.break]}>
                           {/* STAT ITEM CONTENT */}
@@ -340,27 +366,7 @@ const BLE = ({
                             </View>
                           </View>
                         </View>
-                        {/* ITEM - JUMP ACCELERATION */}
-                        <View style={[styles.stat__item, styles.break]}>
-                          {/* STAT ITEM CONTENT */}
-                          <View style={[styles.stat__item_content]}>
-                            <View style={styles.stat__jump}>
-                              <Text style={styles.bottom__name}>
-                                Jump Acceleration
-                              </Text>
-                              <Image
-                                source={Jump1}
-                                style={styles.jump__image}
-                              />
-                            </View>
-                            {/* STAT NUMBER */}
-                            <View style={styles.item__number}>
-                              <Text style={styles.number}>{jump_acc}</Text>
-                              <Text style={styles.unit}>m/s</Text>
-                            </View>
-                          </View>
-                        </View>
-                        {/* ITEM - SPRINT */}
+                        {/* ITEM - ACCELERATION */}
                         <View style={[styles.stat__item, styles.break]}>
                           {/* STAT ITEM CONTENT */}
                           <View style={[styles.stat__item_content]}>
@@ -376,7 +382,9 @@ const BLE = ({
                                   style={[styles.icon, styles.sprint]}
                                 />
                               </View>
-                              <Text style={styles.stat__name}>Sprint</Text>
+                              <Text style={styles.stat__name}>
+                                Acceleration
+                              </Text>
                             </View>
                             {/* STAT NUMBER */}
                             <View style={styles.item__number}>
@@ -619,8 +627,8 @@ const BLE = ({
                             initialRegion={{
                               // latitude: latitude, // Set the initial latitude of the map
                               // longitude: longitude, // Set the initial longitude of the map
-                              latitude: 10.80059, // Set the initial latitude of the map ,
-                              longitude: 106.74493, // Set the initial longitude of the map
+                              latitude: 10.80043, // Set the initial latitude of the map ,
+                              longitude: 106.74503, // Set the initial longitude of the map
                               latitudeDelta: 0.0005, // Adjust the delta values as needed to zoom in/out
                               longitudeDelta: 0.0005,
                             }}
@@ -692,17 +700,14 @@ const BLE = ({
                         <View style={[styles.item__number, styles.multi]}>
                           <View style={styles.item}>
                             <Text style={styles.number}>{run_acc}</Text>
-                            <Text style={styles.unit}>m/s</Text>
                           </View>
                           <View style={styles.line}></View>
                           <View style={styles.item}>
                             <Text style={styles.number}>{run_acc_avg}</Text>
-                            <Text style={styles.unit}>AVG m/s</Text>
                           </View>
                           <View style={styles.line}></View>
                           <View style={styles.item}>
                             <Text style={styles.number}>{run_acc_max}</Text>
-                            <Text style={styles.unit}>MAX m/s</Text>
                           </View>
                         </View>
                       </View>
@@ -783,7 +788,7 @@ const styles = StyleSheet.create({
   },
   welcome__container: {
     position: 'relative',
-    padding: 20,
+    padding: res * 0.025,
     // backgroundColor: 'red',
     width: '100%',
     height: '100%',
@@ -792,60 +797,60 @@ const styles = StyleSheet.create({
   },
   welcome__time: {
     position: 'absolute',
-    top: 30,
+    top: res * 0.035,
     left: 0,
     backgroundColor: '#E79C25',
-    padding: 15,
+    padding: res * 0.02,
     borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
     opacity: 0.95,
   },
   time__welcome: {
-    fontSize: 15,
+    fontSize: res * 0.02,
     color: '#FFF',
   },
   highlight: {
     fontWeight: 700,
-    fontSize: 20,
+    fontSize: res * 0.03,
   },
   welcome__logo: {
     alignItems: 'center',
     justifyContent: 'center',
   },
   logo__image: {
-    width: 200,
-    height: 200,
+    width: res * 0.25,
+    height: res * 0.25,
     resizeMode: 'cover',
   },
   logo__name: {
     textTransform: 'uppercase',
     fontWeight: 600,
-    fontSize: 30,
+    fontSize: res * 0.04,
     color: '#FFF',
   },
   welcome__scan: {
     position: 'absolute',
-    bottom: 30,
+    bottom: res * 0.035,
     right: 0,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 20,
   },
   scan__text: {
-    fontSize: 20,
+    fontSize: res * 0.025,
     color: '#FFF',
   },
   scan__box: {
-    width: 50,
-    height: 50,
-    borderRadius: 50 / 2,
+    width: res * 0.06,
+    height: res * 0.06,
+    borderRadius: (res * 0.06) / 2,
     backgroundColor: '#E79C25',
     alignItems: 'center',
     justifyContent: 'center',
   },
   scan__icon: {
-    fontSize: 30,
+    fontSize: res * 0.04,
   },
 
   //STATS STYLE --------------------------------------------------------------------------------
@@ -854,18 +859,18 @@ const styles = StyleSheet.create({
     zIndex: -1,
   },
   content: {
-    padding: 15,
+    padding: res * 0.02,
     // backgroundColor: 'teal',
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingBottom: 20,
-    padding: 15,
+    paddingBottom: res * 0.025,
+    padding: res * 0.02,
   },
   header__text: {
-    fontSize: 25,
+    fontSize: res * 0.03,
     fontWeight: 900,
     color: '#FFF',
   },
@@ -876,14 +881,29 @@ const styles = StyleSheet.create({
   },
   battery__container: {
     position: 'relative',
-    width: 60,
-    height: 16,
-    overflow: 'hidden',
-    borderRadius: 10,
+    width: res * 0.04,
+    height: res * 0.017,
+    // overflow: 'hidden',
+    borderRadius: 2,
     borderColor: '#fff',
     borderWidth: 1,
     // alignItems: 'center',
     // justifyContent: 'center',
+  },
+  battery__head_container: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: -3,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'flex-end',
+  },
+  battery__head: {
+    width: res * 0.005,
+    height: res * 0.007,
+    backgroundColor: '#FFF',
+    borderRadius: 1,
   },
   battery: {
     position: 'absolute',
@@ -895,16 +915,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   batter__status: {
-    fontSize: 10,
+    fontSize: res * 0.01,
     color: '#FFF',
     fontWeight: 600,
   },
   stat__container: {
     width: '100%',
     height: '100%',
-    marginTop: 5,
-    paddingHorizontal: 10,
-    paddingBottom: 50, //clear after done
+    marginTop: res * 0.005,
+    paddingHorizontal: res * 0.009,
+    paddingBottom: res * 0.06, //clear after done
   },
   stat__list: {
     gap: 20,
@@ -915,17 +935,17 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   stat__box: {
-    width: '47%',
+    width: '48%',
     justifyContent: 'space-between',
   },
   stat__item: {
     width: '100%',
-    marginTop: 10,
+    marginTop: res * 0.01,
   },
   stat__item_content: {
     width: '100%',
     backgroundColor: '#15212D',
-    padding: 10,
+    padding: res * 0.015,
     borderRadius: 15,
     shadowColor: '#EFE8E8',
     shadowOffset: {
@@ -941,13 +961,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   stat__icon: {
-    width: 35,
-    height: 35,
-    borderRadius: 35 / 2,
+    width: res * 0.045,
+    height: res * 0.045,
+    borderRadius: (res * 0.045) / 2,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  icon: {fontSize: 20},
+  icon: {
+    fontSize: res * 0.025,
+  },
   time__blur: {
     backgroundColor: '#4F4722',
   },
@@ -980,10 +1002,10 @@ const styles = StyleSheet.create({
     color: '#F16767',
   },
   jump__blur: {
-    backgroundColor: '#4B333C',
+    backgroundColor: '#443C2C',
   },
   jump: {
-    color: '#F44336',
+    color: '#FFA726',
   },
   heatmap__blur: {
     backgroundColor: '#4D292F',
@@ -992,10 +1014,10 @@ const styles = StyleSheet.create({
     color: '#F44336',
   },
   stat__name: {
-    fontSize: 18,
+    fontSize: res * 0.02,
     color: '#FFF',
     fontWeight: 600,
-    marginLeft: 10,
+    marginLeft: res * 0.015,
   },
   stat__jump: {
     alignItems: 'center',
@@ -1003,51 +1025,51 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   jump__image: {
-    width: 60,
-    height: 95,
+    width: res * 0.06,
+    height: res * 0.1,
     resizeMode: 'cover',
   },
   item__number: {
     alignItems: 'center',
-    paddingVertical: 10,
+    paddingVertical: res * 0.01,
   },
   number: {
-    fontSize: 30,
+    fontSize: res * 0.04,
     color: '#FFF',
     fontWeight: 700,
   },
   bottom__name: {
     textAlign: 'center',
-    fontSize: 15,
+    fontSize: res * 0.02,
     color: '#FFF',
     fontWeight: 700,
   },
   unit: {
-    marginTop: 10,
+    marginTop: res * 0.015,
     color: '#FFF',
     fontWeight: 600,
   },
   congrate: {
-    fontSize: 13,
+    fontSize: res * 0.015,
     marginTop: 10,
     color: '#43A047',
     textAlign: 'center',
   },
   map__container: {
     position: 'relative',
-    marginTop: 20,
-    paddingBottom: 10,
+    marginTop: res * 0.025,
+    paddingBottom: res * 0.015,
   },
   map__disable: {
     position: 'absolute',
     width: '100%',
-    height: 250,
+    height: res * 0.3,
     backgroundColor: 'transparent',
     zIndex: 1,
   },
   map: {
     width: '100%',
-    height: 250,
+    height: res * 0.3,
   },
   speed__blur: {
     backgroundColor: '#4F2E2A',
@@ -1059,8 +1081,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-around',
-    marginTop: 10,
-    paddingVertical: 20,
+    marginTop: res * 0.015,
+    paddingVertical: res * 0.025,
   },
   item: {
     alignItems: 'center',
@@ -1080,12 +1102,12 @@ const styles = StyleSheet.create({
   save__btn_container: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 30,
+    marginTop: res * 0.035,
   },
   save__btn: {
     backgroundColor: '#E79C25',
-    paddingHorizontal: 10,
-    paddingVertical: 15,
+    paddingHorizontal: res * 0.015,
+    paddingVertical: res * 0.02,
     alignItems: 'center',
     borderRadius: 5,
     width: '70%',
@@ -1094,7 +1116,7 @@ const styles = StyleSheet.create({
     color: '#FFF',
     textTransform: 'uppercase',
     fontWeight: 600,
-    fontSize: 17,
+    fontSize: res * 0.02,
   },
 });
 

@@ -8,9 +8,11 @@ import {
   TouchableOpacity,
   Text,
   Alert,
+  Dimensions,
 } from 'react-native';
 import QRCodeScanner from 'react-native-qrcode-scanner';
 import ScanArea from './ScanArea';
+const res = Dimensions.get('window').height;
 
 const DeviceModal = props => {
   const {devices, visible, connectToPeripheral, closeModal} = props;
@@ -21,7 +23,7 @@ const DeviceModal = props => {
   useEffect(() => {
     const timeout = setTimeout(() => {
       setQRCode('');
-    }, 30000);
+    }, 5000);
 
     return () => clearTimeout(timeout);
   }, [qrcode]);
@@ -94,34 +96,34 @@ const DeviceModal = props => {
 };
 
 const styles = StyleSheet.create({
-  modalFlatlistContiner: {
-    position: 'relative',
-    zIndex: -1,
-    marginTop: 450,
-  },
+  // modalFlatlistContiner: {
+  //   position: 'relative',
+  //   zIndex: -1,
+  //   marginTop: 550,
+  // },
   modalTitle: {
     position: 'relative',
     flex: 1,
     backgroundColor: '#15212D',
   },
-  save__btn_container: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  save__btn: {
-    backgroundColor: '#E79C25',
-    paddingHorizontal: 10,
-    paddingVertical: 15,
-    alignItems: 'center',
-    borderRadius: 5,
-    width: '70%',
-  },
-  save__btn_text: {
-    color: '#FFF',
-    textTransform: 'uppercase',
-    fontWeight: 600,
-    fontSize: 17,
-  },
+  // save__btn_container: {
+  //   alignItems: 'center',
+  //   justifyContent: 'center',
+  // },
+  // save__btn: {
+  //   backgroundColor: '#E79C25',
+  //   paddingHorizontal: 10,
+  //   paddingVertical: 15,
+  //   alignItems: 'center',
+  //   borderRadius: 5,
+  //   width: '70%',
+  // },
+  // save__btn_text: {
+  //   color: '#FFF',
+  //   textTransform: 'uppercase',
+  //   fontWeight: 600,
+  //   fontSize: 17,
+  // },
 
   // Alert styles
   alertContainer: {
@@ -136,16 +138,16 @@ const styles = StyleSheet.create({
   },
   alertText: {
     color: '#FFF',
-    fontSize: 20,
-    marginBottom: 20,
+    fontSize: res * 0.03,
+    marginBottom: res * 0.05,
   },
   dismissText: {
     color: '#FFF',
-    fontSize: 16,
+    fontSize: res * 0.02,
     textTransform: 'uppercase',
     backgroundColor: '#E79C25',
-    paddingHorizontal: 30,
-    paddingVertical: 15,
+    paddingHorizontal: res * 0.04,
+    paddingVertical: res * 0.02,
     borderRadius: 5,
   },
 });

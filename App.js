@@ -13,7 +13,7 @@ const App = () => {
   useEffect(() => {
     setTimeout(() => {
       setIsSplash(false);
-    }, 2500);
+    }, 2300);
   });
   return (
     <SafeAreaProvider>{isSplash ? <Splash /> : <Routing />}</SafeAreaProvider>

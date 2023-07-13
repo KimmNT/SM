@@ -1,5 +1,14 @@
 import React, {useEffect, useState} from 'react';
-import {View, Image, Animated, StyleSheet, Text} from 'react-native';
+import {
+  View,
+  Image,
+  Animated,
+  StyleSheet,
+  Text,
+  Dimensions,
+} from 'react-native';
+
+const res = Dimensions.get('window').height;
 
 //LOGO
 import player from '../../assets/images/player.png';
@@ -15,19 +24,19 @@ const SplashScreen = ({navigation}) => {
   useEffect(() => {
     //PLAYER
     Animated.timing(playerMove, {
-      toValue: -60,
+      toValue: res * -0.09,
       duration: 1000,
       useNativeDriver: true,
     }).start();
     //BALL
     Animated.timing(ballMove, {
-      toValue: 50,
+      toValue: res * 0.05,
       duration: 1000,
       useNativeDriver: true,
     }).start();
     //FIELD
     Animated.timing(fieldMove, {
-      toValue: -50,
+      toValue: res * -0.05,
       duration: 1000,
       useNativeDriver: true,
     }).start();
@@ -77,17 +86,17 @@ const styles = StyleSheet.create({
   player: {
     position: 'absolute',
     // top: 70,
-    right: -50,
-    width: 210,
-    height: 250,
+    right: -60,
+    width: res * 0.27,
+    height: res * 0.32,
     zIndex: 2,
   },
   ball: {
     position: 'absolute',
     // top: 240,
     left: -40,
-    width: 131,
-    height: 40,
+    width: res * 0.16,
+    height: res * 0.05,
     resizeMode: 'cover',
   },
   field: {
